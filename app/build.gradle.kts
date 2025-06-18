@@ -16,6 +16,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
@@ -40,7 +41,12 @@ android {
 }
 
 dependencies {
-
+    implementation("androidx.compose.ui:ui:1.3.0")
+    implementation("androidx.compose.material:material:1.3.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
+    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.2")
+    implementation("androidx.activity:activity-compose:1.6.0")
+    implementation ("androidx.navigation:navigation-compose:2.7.7")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
