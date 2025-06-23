@@ -19,11 +19,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.booking.R
+import com.example.booking.viewmodel.RegistrationViewModel
 
 @Composable
-fun RegistrationScreen( onNextClick: () -> Unit,
-                        onBackClick: () -> Unit) {
+fun RegistrationScreen(onNextClick: () -> Unit, onBackClick: () -> Unit) {
     val customFontFamily = FontFamily(
         Font(R.font.roboto_regular),
         Font(R.font.roboto_bold, FontWeight.Bold)
@@ -32,21 +33,18 @@ fun RegistrationScreen( onNextClick: () -> Unit,
     var fullName by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val viewModel: RegistrationViewModel = viewModel()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color.Black
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-
+        Column(modifier = Modifier.fillMaxSize()) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 56.dp, bottom = 32.dp)
             ) {
-
                 IconButton(
                     onClick = onBackClick,
                     modifier = Modifier
@@ -60,7 +58,6 @@ fun RegistrationScreen( onNextClick: () -> Unit,
                         modifier = Modifier.size(24.dp)
                     )
                 }
-
 
                 Text(
                     text = "Введите информацию для регистрации",
@@ -79,7 +76,6 @@ fun RegistrationScreen( onNextClick: () -> Unit,
                 )
             }
 
-
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -93,7 +89,6 @@ fun RegistrationScreen( onNextClick: () -> Unit,
                         .padding(top = 32.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-
                     OutlinedTextField(
                         value = fullName,
                         onValueChange = { fullName = it },
@@ -111,7 +106,6 @@ fun RegistrationScreen( onNextClick: () -> Unit,
                         singleLine = true,
                         textStyle = TextStyle(fontFamily = customFontFamily, fontSize = 16.sp)
                     )
-
 
                     OutlinedTextField(
                         value = phoneNumber,
@@ -131,7 +125,6 @@ fun RegistrationScreen( onNextClick: () -> Unit,
                         singleLine = true,
                         textStyle = TextStyle(fontFamily = customFontFamily, fontSize = 16.sp)
                     )
-
 
                     OutlinedTextField(
                         value = password,
@@ -154,9 +147,19 @@ fun RegistrationScreen( onNextClick: () -> Unit,
 
                     Spacer(modifier = Modifier.weight(1f))
 
-                    // Кнопка "Далее"
                     Button(
-                        onClick = onNextClick,
+                        onClick = {
+                            viewModel.registerUser(fullName, phoneNumber, password,
+                                onSuccess = { response ->
+                                    // Обработка успешной регистрации
+                                    onNextClick()
+                                },
+                                onError = { errorMessage ->
+                                    // Обработка ошибки регистрации
+                                    println("Ошибка: $errorMessage")
+                                }
+                            )
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),

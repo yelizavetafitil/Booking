@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    kotlin("plugin.serialization") version "1.9.0"
 }
 
 android {
@@ -41,6 +42,12 @@ android {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    implementation ("io.ktor:ktor-client-core:2.3.5")
+    implementation ("io.ktor:ktor-client-android:2.3.5")
+    implementation ("io.ktor:ktor-client-content-negotiation:2.3.5")
+    implementation ("io.ktor:ktor-serialization-kotlinx-json:2.3.5")
+    implementation ("io.ktor:ktor-client-logging:2.3.5")
     implementation("androidx.compose.ui:ui:1.3.0")
     implementation("androidx.compose.material:material:1.3.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
