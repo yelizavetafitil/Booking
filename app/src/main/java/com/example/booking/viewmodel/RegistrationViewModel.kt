@@ -10,14 +10,15 @@ class RegistrationViewModel : ViewModel() {
 
     private val networkClient = NetworkClient()
 
-    fun registerUser(fullName: String, phoneNumber: String, password: String, onSuccess: (String) -> Unit, onError: (String) -> Unit) {
+    fun registerUser(fullName: String, phoneNumber: String, password: String, onSuccess: (Int) -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             val registrationData = RegistrationData(fullName, phoneNumber, password)
             try {
-                val response = networkClient.registerUser(registrationData)
-                onSuccess(response)
+                val userId = networkClient.registerUser(registrationData)
+                onSuccess(userId)
             } catch (e: Exception) {
-                onError(e.localizedMessage ?: "Ошибка регистрации")
+                val errorMessage = e.localizedMessage ?: "Ошибка регистрации"
+                onError(errorMessage)
             }
         }
     }

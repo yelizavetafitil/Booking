@@ -48,12 +48,11 @@ dependencies {
     implementation ("io.ktor:ktor-client-content-negotiation:2.3.5")
     implementation ("io.ktor:ktor-serialization-kotlinx-json:2.3.5")
     implementation ("io.ktor:ktor-client-logging:2.3.5")
-    implementation("androidx.compose.ui:ui:1.3.0")
-    implementation("androidx.compose.material:material:1.3.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
-    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.2")
-    implementation("androidx.activity:activity-compose:1.6.0")
-    implementation ("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.compose.ui:ui:1.5.0") // Обновлено
+    implementation("androidx.compose.material3:material3:1.1.0") // Обновлено
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1") // Обновлено
+    implementation("androidx.activity:activity-compose:1.7.0") // Обновлено
+    implementation("androidx.navigation:navigation-compose:2.7.0") // Обновлено
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

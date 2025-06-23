@@ -23,8 +23,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.booking.R
 import com.example.booking.viewmodel.RegistrationViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegistrationScreen(onNextClick: () -> Unit, onBackClick: () -> Unit) {
+fun RegistrationScreen(onNextClick: (userId: Int?) -> Unit, onBackClick: () -> Unit) {
     val customFontFamily = FontFamily(
         Font(R.font.roboto_regular),
         Font(R.font.roboto_bold, FontWeight.Bold)
@@ -34,6 +35,49 @@ fun RegistrationScreen(onNextClick: () -> Unit, onBackClick: () -> Unit) {
     var phoneNumber by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val viewModel: RegistrationViewModel = viewModel()
+
+    var showErrorDialog by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+
+    if (showErrorDialog) {
+        AlertDialog(
+            onDismissRequest =  { showErrorDialog = false },
+            title = null,
+            text = {
+                Text(
+                    text = errorMessage,
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick =  { showErrorDialog = false },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Black
+                    )
+                ) {
+                    Text(
+                        text = "Ок",
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                }
+            },
+            modifier = Modifier
+                .clip(RoundedCornerShape(12.dp))
+                .padding(horizontal = 24.dp),
+            containerColor = Color.White,
+            tonalElevation = 0.dp
+        )
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -149,14 +193,14 @@ fun RegistrationScreen(onNextClick: () -> Unit, onBackClick: () -> Unit) {
 
                     Button(
                         onClick = {
-                            viewModel.registerUser(fullName, phoneNumber, password,
-                                onSuccess = { response ->
-                                    // Обработка успешной регистрации
-                                    onNextClick()
+                            viewModel.registerUser(
+                                fullName, phoneNumber, password,
+                                onSuccess = { userId ->
+                                    onNextClick(userId)
                                 },
-                                onError = { errorMessage ->
-                                    // Обработка ошибки регистрации
-                                    println("Ошибка: $errorMessage")
+                                onError = { message ->
+                                    errorMessage = message
+                                    showErrorDialog = true
                                 }
                             )
                         },

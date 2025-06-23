@@ -1,6 +1,7 @@
 package com.example.booking.data
 
 import com.example.booking.models.RegistrationData
+import com.example.booking.models.RegistrationResponse
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.ResponseException
@@ -34,7 +35,7 @@ class NetworkClient {
         expectSuccess = false
     }
 
-    suspend fun registerUser(data: RegistrationData): String {
+    suspend fun registerUser(data: RegistrationData): Int {
         return withContext(Dispatchers.IO) {
             try {
                 val response = client.post("http://10.0.2.2:8080/register") {
@@ -42,8 +43,13 @@ class NetworkClient {
                     setBody(data)
                 }
                 println("Response status: ${response.status}")
-                println("Response body: ${response.body<String>()}")
-                response.body()
+                if (response.status == HttpStatusCode.Conflict) {
+                    val errorMessage = response.body<String>()
+                    throw Exception(errorMessage)
+                }
+                val responseBody: RegistrationResponse = response.body()
+                println("Registered user ID: ${responseBody.userId}")
+                responseBody.userId
             } catch (e: Exception) {
                 println("Ошибка регистрации: ${e.message}")
                 if (e is ResponseException) {
