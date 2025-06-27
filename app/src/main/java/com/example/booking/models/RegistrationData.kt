@@ -15,3 +15,18 @@ data class RegistrationData(
 data class RegistrationResponse(
     val userId: Int
 )
+
+@OptIn(InternalSerializationApi::class)
+@Serializable
+data class EnterpriseRegistrationData(
+    val enterpriseName: String,
+    val city: String,
+    val address: String,
+    val enterprisePhoneNumber: String
+)
+
+@OptIn(InternalSerializationApi::class)
+@Serializable
+data class EnterpriseRegistrationResponse(
+    val enterpriseId: Int
+)
