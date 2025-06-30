@@ -34,11 +34,10 @@ import com.example.booking.viewmodel.EnterpriseRegistrationViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EnterpriseRegistrationScreen(
+fun EnterpriseAddScreen(
     userId: Int?,
-    onNextClick: (userId: Int?, enterpriseId: Int?) -> Unit,
-    onSkipClick: (userId: Int?) -> Unit,
-    onBackClick: () -> Unit
+    onNextClick: (userId: Int?) -> Unit,
+    onBackClick: (userId: Int?) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -57,12 +56,6 @@ fun EnterpriseRegistrationScreen(
 
     var showErrorDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
-
-    BackHandler {
-        keyboardController?.hide()
-        userId?.let(viewModel::backEnterprise)
-        onBackClick()
-    }
 
     if (showErrorDialog) {
         AlertDialog(
@@ -118,9 +111,10 @@ fun EnterpriseRegistrationScreen(
             ) {
                 IconButton(
                     onClick = {
-                        keyboardController?.hide()
-                        userId?.let(viewModel::backEnterprise)
-                        onBackClick()
+                        if (userId == null) {
+                            errorMessage = "Необходимо указать идентификатор пользователя"
+                        }
+                        onBackClick(userId)
                     },
                     modifier = Modifier
                         .align(Alignment.CenterStart)
@@ -266,7 +260,7 @@ fun EnterpriseRegistrationScreen(
                                 enterprisePhoneNumber = enterprisePhoneNumber.trim(),
                                 userId = userId,
                                 onSuccess = { enterpriseId ->
-                                    onNextClick(userId, enterpriseId)
+                                    onNextClick(userId)
                                 },
                                 onError = { message ->
                                     errorMessage = message
@@ -285,28 +279,6 @@ fun EnterpriseRegistrationScreen(
                     ) {
                         Text(
                             "Далее",
-                            fontFamily = customFontFamily,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-
-                    Button(
-                        onClick = {
-                            keyboardController?.hide()
-                            onSkipClick(userId)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Black,
-                            contentColor = Color.White
-                        )
-                    ) {
-                        Text(
-                            "Пропустить",
                             fontFamily = customFontFamily,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Medium

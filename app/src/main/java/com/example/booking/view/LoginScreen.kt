@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.sp
 import com.example.booking.R
 
 @Composable
-fun LoginRegistrationScreen( onRegisterClick: () -> Unit) {
+fun LoginRegistrationScreen( onEntryClick: () -> Unit, onRegisterClick: () -> Unit) {
 
     val customFontFamily = FontFamily(
         Font(R.font.roboto_regular),
@@ -84,7 +84,7 @@ fun LoginRegistrationScreen( onRegisterClick: () -> Unit) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Button(
-                        onClick = {  },
+                        onClick = onEntryClick,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),

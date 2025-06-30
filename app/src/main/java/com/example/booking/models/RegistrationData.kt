@@ -22,7 +22,8 @@ data class EnterpriseRegistrationData(
     val enterpriseName: String,
     val city: String,
     val address: String,
-    val enterprisePhoneNumber: String
+    val enterprisePhoneNumber: String,
+    val userId: Int
 )
 
 @OptIn(InternalSerializationApi::class)

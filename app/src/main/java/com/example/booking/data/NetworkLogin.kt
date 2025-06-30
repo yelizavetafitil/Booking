@@ -1,6 +1,7 @@
 package com.example.booking.data
 
-import com.example.booking.models.*
+import com.example.booking.models.RegistrationData
+import com.example.booking.models.RegistrationResponse
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.ResponseException
@@ -14,7 +15,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
 
-class NetworkEnterprise {
+class NetworkLogin {
     private val client = HttpClient {
         install(ContentNegotiation) {
             json(Json {
@@ -34,13 +35,12 @@ class NetworkEnterprise {
         expectSuccess = false
     }
 
-    suspend fun registerEnterprise(data: EnterpriseRegistrationData): Int {
+    suspend fun loginUser(data: RegistrationData): Int {
         return withContext(Dispatchers.IO) {
             try {
-                val response = client.post("http://10.0.2.2:8080/enterpriseRegistration") {
+                val response = client.post("http://10.0.2.2:8080/login") {
                     contentType(ContentType.Application.Json)
                     setBody(data)
-                    accept(ContentType.Application.Json)
                 }
                 println("Response status: ${response.status}")
                 if (response.status == HttpStatusCode.Conflict) {
@@ -51,53 +51,21 @@ class NetworkEnterprise {
                     val errorMessage = response.body<String>()
                     throw Exception(errorMessage)
                 }
-                val responseBody: EnterpriseRegistrationResponse = response.body()
-                println("Registered enterprise ID: ${responseBody.enterpriseId}")
-                responseBody.enterpriseId
+                if (response.status == HttpStatusCode.OK) {
+                    val responseBody: RegistrationResponse = response.body()
+                    println("Registered user ID: ${responseBody.userId}")
+                    responseBody.userId
+                } else {
+
+                }
             } catch (e: Exception) {
-                println("Ошибка: ${e.message}")
+                println("Ошибка регистрации: ${e.message}")
                 if (e is ResponseException) {
                     println("Статус ответа: ${e.response.status}")
                     println("Тело ответа: ${e.response.body<String>()}")
                 }
                 throw e
-            }
-        }
-    }
-
-    suspend fun backEnterprise(userId: Int) {
-        withContext(Dispatchers.IO) {
-            try {
-                val response = client.delete("http://10.0.2.2:8080/enterpriseBack/$userId") {
-                }
-                println("Response status: ${response.status}")
-
-            } catch (e: Exception) {
-                println("Ошибка: ${e.message}")
-                if (e is ResponseException) {
-                    println("Статус ответа: ${e.response.status}")
-                    println("Тело ответа: ${e.response.body<String>()}")
-                }
-                throw e
-            }
-        }
-    }
-
-    suspend fun getUserEnterprises(userId: Int): List<EnterpriseData> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val response = client.get("http://10.0.2.2:8080/userEnterprises/$userId") {
-                    accept(ContentType.Application.Json)
-                }
-
-                when (response.status) {
-                    HttpStatusCode.OK -> response.body()
-                    else -> throw Exception("Ошибка сервера: ${response.status}")
-                }
-            } catch (e: Exception) {
-                println("Ошибка получения предприятий: ${e.message}")
-                throw e
-            }
+            } as Int
         }
     }
 }
