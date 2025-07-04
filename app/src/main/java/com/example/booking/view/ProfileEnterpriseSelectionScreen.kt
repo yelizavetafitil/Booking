@@ -24,13 +24,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.booking.R
 import com.example.booking.viewmodel.EnterpriseSelectionViewModel
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EnterpriseSelectionScreen(
+fun ProfileEnterpriseSelectionScreen(
     userId: Int?,
+    enterpriseId: Int?,
     onEnterpriseSelected: (userId: Int?, enterpriseId: Int) -> Unit,
-    onAddEnterprise: (userId: Int?) -> Unit,
-    onBackClick: () -> Unit
+    onEditEnterprise: (userId: Int?, enterpriseId: Int) -> Unit,
+    onBackClick: (userId: Int?, enterpriseId: Int) -> Unit
 ) {
     val customFontFamily = FontFamily(
         Font(R.font.roboto_regular),
@@ -38,18 +40,30 @@ fun EnterpriseSelectionScreen(
     )
 
     val viewModel: EnterpriseSelectionViewModel = viewModel()
+
+    // Добавлена обработка ошибок при загрузке
     LaunchedEffect(userId) {
-        userId?.let { viewModel.loadEnterprises(it) }
+        try {
+            userId?.let {
+                viewModel.loadEnterprises(it)
+            } ?: run {
+                Log.e("ENTERPRISE_LOAD", "User ID is null")
+            }
+        } catch (e: Exception) {
+            Log.e("ENTERPRISE_LOAD", "Error loading enterprises", e)
+        }
     }
+
     val enterprises by viewModel.enterprises.collectAsState()
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    if (errorMessage != null) {
+    // Безопасное отображение диалога ошибки
+    errorMessage?.let { message ->
         AlertDialog(
             onDismissRequest = { errorMessage = null },
             title = { Text("Ошибка") },
-            text = { Text(errorMessage ?: "Неизвестная ошибка") },
+            text = { Text(message) },
             confirmButton = {
                 Button(
                     onClick = { errorMessage = null },
@@ -74,7 +88,17 @@ fun EnterpriseSelectionScreen(
                     .padding(top = 56.dp, bottom = 32.dp)
             ) {
                 IconButton(
-                    onClick = onBackClick,
+                    onClick = {
+                        try {
+                            if (userId != null && enterpriseId != null) {
+                                onBackClick(userId, enterpriseId)
+                            } else {
+                                errorMessage = "Идентификатор пользователя не может быть пустым"
+                            }
+                        } catch (e: Exception) {
+                            errorMessage = "Ошибка навигации: ${e.localizedMessage}"
+                        }
+                    },
                     modifier = Modifier
                         .align(Alignment.CenterStart)
                         .padding(start = 16.dp)
@@ -88,7 +112,7 @@ fun EnterpriseSelectionScreen(
                 }
 
                 Text(
-                    text = "Выберите предприятие",
+                    text = "Управление предприятиями",
                     style = TextStyle(
                         fontSize = 22.sp,
                         fontFamily = customFontFamily,
@@ -132,36 +156,6 @@ fun EnterpriseSelectionScreen(
                                     color = Color.Gray,
                                     style = MaterialTheme.typography.bodyLarge
                                 )
-                                Button(
-                                    onClick = {
-                                        if (userId == null) {
-                                            errorMessage =
-                                                "Необходимо указать идентификатор пользователя"
-                                            return@Button
-                                        }
-                                        onAddEnterprise(userId)
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 24.dp, vertical = 24.dp)
-                                        .height(52.dp),
-                                    shape = RoundedCornerShape(12.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color.Black,
-                                        contentColor = Color.White
-                                    ),
-                                    elevation = ButtonDefaults.buttonElevation(
-                                        defaultElevation = 0.dp,
-                                        pressedElevation = 0.dp
-                                    )
-                                ) {
-                                    Text(
-                                        "Добавить",
-                                        fontFamily = customFontFamily,
-                                        fontSize = 18.sp,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                }
                             }
                         } else {
                             LazyColumn(
@@ -173,29 +167,33 @@ fun EnterpriseSelectionScreen(
                                 contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp)
                             ) {
                                 items(enterprises) { enterprise ->
+                                    val isCurrentEnterprise = enterprise.enterpriseId == enterpriseId
+
                                     Card(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(vertical = 4.dp),
                                         shape = RoundedCornerShape(12.dp),
                                         colors = CardDefaults.cardColors(
-                                            containerColor = Color.Black
+                                            containerColor = if (isCurrentEnterprise) Color.Gray.copy(alpha = 0.5f) else Color.Black,
+                                            contentColor = if (isCurrentEnterprise) Color.Black else Color.White
                                         )
                                     ) {
                                         EnterpriseItem(
                                             name = enterprise.enterpriseName,
                                             role = enterprise.access ?: "Админ",
                                             onClick = {
-                                                Log.d("ENTERPRISE_SELECT",
-                                                    "Enterpise ID: ${enterprise.enterpriseId}, User ID: $userId")
-
-                                                if (userId == null) {
-                                                    errorMessage = "Идентификатор пользователя не может быть пустым"
-                                                } else {
-                                                    onEnterpriseSelected(userId, enterprise.enterpriseId)
+                                                try {
+                                                    if (userId == null) {
+                                                        errorMessage = "Идентификатор пользователя не может быть пустым"
+                                                    } else {
+                                                        onEnterpriseSelected(userId, enterprise.enterpriseId)
+                                                    }
+                                                } catch (e: Exception) {
+                                                    errorMessage = "Ошибка выбора предприятия: ${e.localizedMessage}"
                                                 }
                                             },
-                                            textColor = Color.White
+                                            textColor = if (isCurrentEnterprise) Color.Black else Color.White
                                         )
                                     }
                                 }
@@ -205,16 +203,20 @@ fun EnterpriseSelectionScreen(
 
                     Button(
                         onClick = {
-                            if (userId == null) {
-                                errorMessage = "Необходимо указать идентификатор пользователя"
-                                return@Button
+                            try {
+                                if (userId == null || enterpriseId == null) {
+                                    errorMessage = "Необходимо указать идентификатор пользователя"
+                                } else {
+                                    onEditEnterprise(userId, enterpriseId)
+                                }
+                            } catch (e: Exception) {
+                                errorMessage = "Ошибка редактирования: ${e.localizedMessage}"
                             }
-                            onAddEnterprise(userId)
                         },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 24.dp, vertical = 24.dp)
-                            .height(52.dp),
+                            .height(64.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Black,
@@ -226,7 +228,9 @@ fun EnterpriseSelectionScreen(
                         )
                     ) {
                         Text(
-                            "Добавить",
+                            "Редактировать текущее предприятие",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center,
                             fontFamily = customFontFamily,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Medium
@@ -235,37 +239,5 @@ fun EnterpriseSelectionScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun EnterpriseItem(
-    name: String,
-    role: String,
-    onClick: () -> Unit,
-    textColor: Color = Color.White
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(16.dp)
-    ) {
-        Text(
-            text = name,
-            style = TextStyle(
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = textColor
-            )
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = role,
-            style = TextStyle(
-                fontSize = 14.sp,
-                color = textColor.copy(alpha = 0.8f)
-            )
-        )
     }
 }

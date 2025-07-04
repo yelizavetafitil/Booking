@@ -11,3 +11,12 @@ data class EnterpriseData(
     val enterpriseId: Int,
     val access: String,
 )
+
+@OptIn(InternalSerializationApi::class)
+@Serializable
+data class Enterprise(
+    val enterpriseName: String,
+    val city: String,
+    val address: String,
+    val enterprisePhoneNumber: String,
+)

@@ -2,12 +2,14 @@ package com.example.booking.data
 
 import com.example.booking.models.RegistrationData
 import com.example.booking.models.RegistrationResponse
+import com.example.booking.models.UserData
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Dispatchers
@@ -63,5 +65,40 @@ class NetworkClient {
                 throw e
             } as Int
         }
+    }
+
+    suspend fun loadUserProfile(userId: Int): UserData {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = client.get("http://10.0.2.2:8080/users/$userId") {
+                    contentType(ContentType.Application.Json)
+                }
+
+                when (response.status) {
+                    HttpStatusCode.OK -> {
+                        response.body<UserData>().also {
+                            println("Successfully loaded user profile: $it")
+                        } ?: throw Exception("Empty response body")
+                    }
+                    HttpStatusCode.NotFound -> throw Exception("User not found")
+                    else -> throw Exception("Server error: ${response.status}")
+                }
+            } catch (e: Exception) {
+                println("Error loading user profile: ${e.message}")
+                throw when (e) {
+                    is ResponseException -> Exception("Network error: ${e.response.bodyAsText()}")
+                    else -> Exception("Failed to load profile: ${e.message}")
+                }
+            }
+        }
+    }
+
+    suspend fun updateUserProfile(userId: Int, data: UserData): Boolean {
+        val response = client.put("http://10.0.2.2:8080/userUpdate/$userId") {
+            contentType(ContentType.Application.Json)
+            setBody(data)
+        }
+
+        return response.status.isSuccess()
     }
 }

@@ -1,10 +1,19 @@
 package com.example.booking.models
+import android.annotation.SuppressLint
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.Serializable
 
 @OptIn(InternalSerializationApi::class)
 @Serializable
 data class RegistrationData(
+    val fullName: String,
+    val phoneNumber: String,
+    val password: String
+)
+
+@OptIn(InternalSerializationApi::class)
+@Serializable
+data class UserData(
     val fullName: String,
     val phoneNumber: String,
     val password: String
