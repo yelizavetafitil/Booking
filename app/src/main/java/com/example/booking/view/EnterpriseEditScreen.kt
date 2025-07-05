@@ -45,6 +45,7 @@ fun EnterpriseEditScreen(
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val scrollState = rememberScrollState()
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     val customFontFamily = FontFamily(
         Font(R.font.roboto_regular),
@@ -135,8 +136,6 @@ fun EnterpriseEditScreen(
             ) {
                 IconButton(
                     onClick = {
-                        keyboardController?.hide()
-                        userId?.let(viewModel::backEnterprise)
                         onBackClick(userId, enterpriseId)
                     },
                     modifier = Modifier
@@ -318,12 +317,7 @@ fun EnterpriseEditScreen(
                     Button(
                         onClick = {
                             keyboardController?.hide()
-                            if(enterpriseId==null){
-                                return@Button
-                            }
-                            viewModel.deleteEnterprise(enterpriseId, onSuccess = {
-                                onDeleteClick(userId)
-                            })
+                            showDeleteDialog=true
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -339,6 +333,60 @@ fun EnterpriseEditScreen(
                             fontFamily = customFontFamily,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    if (showDeleteDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showDeleteDialog = false },
+                            title = {
+                                Text(
+                                    "Подтверждение удаления",
+                                    style = TextStyle(
+                                        fontFamily = customFontFamily,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                )
+                            },
+                            text = {
+                                Text(
+                                    "Вы уверены, что хотите удалить предприятие?",
+                                    style = TextStyle(
+                                        fontSize = 16.sp,
+                                        fontFamily = customFontFamily
+                                    )
+                                )
+                            },
+                            confirmButton = {
+                                Button(
+                                    onClick = {
+                                        showDeleteDialog = false
+                                        if(enterpriseId==null){
+                                            return@Button
+                                        }
+                                        viewModel.deleteEnterprise(enterpriseId, onSuccess = {
+                                            onDeleteClick(userId)
+                                        })
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.Black
+                                    )
+                                ) {
+                                    Text("Да", color = Color.White)
+                                }
+                            },
+                            dismissButton = {
+                                OutlinedButton(
+                                    onClick = { showDeleteDialog = false }
+                                ) {
+                                    Text("Нет", color = Color.Black)
+                                }
+                            },
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .padding(horizontal = 24.dp),
+                            containerColor = Color.White,
+                            tonalElevation = 0.dp
                         )
                     }
 

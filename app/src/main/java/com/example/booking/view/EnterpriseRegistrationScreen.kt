@@ -248,7 +248,6 @@ fun EnterpriseRegistrationScreen(
 
                     Spacer(modifier = Modifier.weight(1f))
 
-                    // Кнопки действий
                     Button(
                         onClick = {
                             keyboardController?.hide()

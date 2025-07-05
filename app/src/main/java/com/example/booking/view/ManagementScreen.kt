@@ -25,19 +25,18 @@ import com.example.booking.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(
+fun ManagementScreen(
     userId: Int?,
     enterpriseId: Int?,
+    onAnalyticsClick: (userId: Int?, enterpriseId: Int?) -> Unit,
+    onEmployeeClick: (userId: Int?, enterpriseId: Int?) -> Unit,
+    onServiceClick: (userId: Int?, enterpriseId: Int?) -> Unit,
     onProfileClick: (userId: Int?, enterpriseId: Int?) -> Unit,
-    onEnterprisesClick: (userId: Int?, enterpriseId: Int?) -> Unit,
-    onLogoutClick: () -> Unit,
-    onManagementClick: (userId: Int?, enterpriseId: Int?) -> Unit,
     onCalendarClick: (userId: Int?, enterpriseId: Int?) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val scrollState = rememberScrollState()
-    var showLogoutDialog by remember { mutableStateOf(false) }
 
     val customFontFamily = FontFamily(
         Font(R.font.roboto_regular),
@@ -60,7 +59,7 @@ fun ProfileScreen(
                     .padding(top = 64.dp, bottom = 32.dp)
             ) {
                 Text(
-                    text = "Профиль",
+                    text = "Управление",
                     style = TextStyle(
                         fontSize = 22.sp,
                         fontFamily = customFontFamily,
@@ -89,10 +88,45 @@ fun ProfileScreen(
 
                     Button(
                         onClick = {
-                            Log.d("ENTERPRISE_SELECT",
-                                "Enterpise ID: ${enterpriseId}, User ID: $userId")
+                            onAnalyticsClick(userId, enterpriseId)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        shape = RoundedCornerShape(24.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Black,
+                            contentColor = Color.White
+                        ),
+                        elevation = ButtonDefaults.buttonElevation(4.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                "Аналитика",
+                                style = TextStyle(
+                                    fontSize = 16.sp,
+                                    fontFamily = customFontFamily,
+                                    fontWeight = FontWeight.Medium,
+                                    letterSpacing = 0.8.sp
+                                )
+                            )
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_arrow),
+                                contentDescription = "Стрелка",
+                                tint = Color.Unspecified,
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
+                    }
 
-                            onProfileClick(userId, enterpriseId)
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = {
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -110,7 +144,7 @@ fun ProfileScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                "Профиль",
+                                "Зарплата",
                                 style = TextStyle(
                                     fontSize = 16.sp,
                                     fontFamily = customFontFamily,
@@ -130,9 +164,7 @@ fun ProfileScreen(
                     HorizontalDivider(color = Color.Gray, thickness = 1.dp)
 
                     Button(
-                        onClick = {
-                            onEnterprisesClick(userId, enterpriseId)
-                        },
+                        onClick = {},
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
@@ -149,7 +181,7 @@ fun ProfileScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                "Предприятия",
+                                "Продажи",
                                 style = TextStyle(
                                     fontSize = 16.sp,
                                     fontFamily = customFontFamily,
@@ -169,7 +201,7 @@ fun ProfileScreen(
                     HorizontalDivider(color = Color.Gray, thickness = 1.dp)
 
                     Button(
-                        onClick = { showLogoutDialog = true },
+                        onClick = {  },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
@@ -186,7 +218,7 @@ fun ProfileScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                "Выйти",
+                                "Финансы",
                                 style = TextStyle(
                                     fontSize = 16.sp,
                                     fontFamily = customFontFamily,
@@ -203,53 +235,80 @@ fun ProfileScreen(
                         }
                     }
 
-                    if (showLogoutDialog) {
-                        AlertDialog(
-                            onDismissRequest = { showLogoutDialog = false },
-                            title = {
-                                Text(
-                                    "Подтверждение выхода",
-                                    style = TextStyle(
-                                        fontFamily = customFontFamily,
-                                        fontWeight = FontWeight.Bold
-                                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = {
+                            onEmployeeClick(userId, enterpriseId)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Black,
+                            contentColor = Color.White
+                        ),
+                        elevation = ButtonDefaults.buttonElevation(4.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                "Сотрудники",
+                                style = TextStyle(
+                                    fontSize = 16.sp,
+                                    fontFamily = customFontFamily,
+                                    fontWeight = FontWeight.Medium,
+                                    letterSpacing = 0.8.sp
                                 )
-                            },
-                            text = {
-                                Text(
-                                    "Вы уверены, что хотите выйти из аккаунта?",
-                                    style = TextStyle(
-                                        fontSize = 16.sp,
-                                        fontFamily = customFontFamily
-                                    )
+                            )
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_arrow),
+                                contentDescription = "Стрелка",
+                                tint = Color.Unspecified,
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
+                    }
+
+                    HorizontalDivider(color = Color.Gray, thickness = 1.dp)
+
+                    Button(
+                        onClick = { onServiceClick(userId, enterpriseId) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Black,
+                            contentColor = Color.White
+                        ),
+                        elevation = ButtonDefaults.buttonElevation(4.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                "Услуги",
+                                style = TextStyle(
+                                    fontSize = 16.sp,
+                                    fontFamily = customFontFamily,
+                                    fontWeight = FontWeight.Medium,
+                                    letterSpacing = 0.8.sp
                                 )
-                            },
-                            confirmButton = {
-                                Button(
-                                    onClick = {
-                                        showLogoutDialog = false
-                                        onLogoutClick()
-                                    },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color.Black
-                                    )
-                                ) {
-                                    Text("Да", color = Color.White)
-                                }
-                            },
-                            dismissButton = {
-                                OutlinedButton(
-                                    onClick = { showLogoutDialog = false }
-                                ) {
-                                    Text("Нет", color = Color.Black)
-                                }
-                            },
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(12.dp))
-                                .padding(horizontal = 24.dp),
-                            containerColor = Color.White,
-                            tonalElevation = 0.dp
-                        )
+                            )
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_arrow),
+                                contentDescription = "Стрелка",
+                                tint = Color.Unspecified,
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -280,20 +339,20 @@ fun ProfileScreen(
                                 modifier = Modifier.size(44.dp)
                             )
                         }
-                        IconButton(onClick = {onManagementClick(userId, enterpriseId)} ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_management),
-                                contentDescription = "Управление",
-                                tint = Color.Unspecified,
-                                modifier = Modifier.size(44.dp)
-                            )
-                        }
                         IconButton(onClick = {} ) {
                             Icon(
-                                painter = painterResource(id = R.drawable.ic_profile_select),
-                                contentDescription = "Профиль",
+                                painter = painterResource(id = R.drawable.ic_management_select),
+                                contentDescription = "Управление",
                                 tint = Color.Unspecified,
                                 modifier = Modifier.size(56.dp)
+                            )
+                        }
+                        IconButton(onClick = {onProfileClick(userId, enterpriseId)} ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_profile),
+                                contentDescription = "Профиль",
+                                tint = Color.Unspecified,
+                                modifier = Modifier.size(44.dp)
                             )
                         }
                     }

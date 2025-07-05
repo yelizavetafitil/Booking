@@ -22,16 +22,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.booking.R
-import com.example.booking.viewmodel.EnterpriseSelectionViewModel
+import com.example.booking.viewmodel.ServiceSelectionViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileEnterpriseSelectionScreen(
+fun ServiceScreen(
     userId: Int?,
     enterpriseId: Int?,
-    onEnterpriseSelected: (userId: Int?, enterpriseId: Int) -> Unit,
-    onEditEnterprise: (userId: Int?, enterpriseId: Int) -> Unit,
+    onEditService: (userId: Int?, enterpriseId: Int, serviceId: Int) -> Unit,
+    onAddService: (userId: Int?, enterpriseId: Int) -> Unit,
     onBackClick: (userId: Int?, enterpriseId: Int) -> Unit
 ) {
     val customFontFamily = FontFamily(
@@ -39,12 +39,12 @@ fun ProfileEnterpriseSelectionScreen(
         Font(R.font.roboto_bold, FontWeight.Bold)
     )
 
-    val viewModel: EnterpriseSelectionViewModel = viewModel()
+    val viewModel: ServiceSelectionViewModel = viewModel()
 
-    LaunchedEffect(userId) {
+    LaunchedEffect(enterpriseId) {
         try {
-            userId?.let {
-                viewModel.loadEnterprises(it)
+            enterpriseId?.let {
+                viewModel.loadServices(it)
             } ?: run {
                 Log.e("ENTERPRISE_LOAD", "User ID is null")
             }
@@ -53,7 +53,7 @@ fun ProfileEnterpriseSelectionScreen(
         }
     }
 
-    val enterprises by viewModel.enterprises.collectAsState()
+    val services by viewModel.services.collectAsState()
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
@@ -110,7 +110,7 @@ fun ProfileEnterpriseSelectionScreen(
                 }
 
                 Text(
-                    text = "Управление предприятиями",
+                    text = "Управление услугами",
                     style = TextStyle(
                         fontSize = 22.sp,
                         fontFamily = customFontFamily,
@@ -141,7 +141,7 @@ fun ProfileEnterpriseSelectionScreen(
                             )
                         }
                     } else {
-                        if (enterprises.isEmpty()) {
+                        if (services.isEmpty()) {
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -150,10 +150,40 @@ fun ProfileEnterpriseSelectionScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Text(
-                                    text = "Нет доступных предприятий",
+                                    text = "Нет доступных услуг",
                                     color = Color.Gray,
                                     style = MaterialTheme.typography.bodyLarge
                                 )
+                                Button(
+                                    onClick = {
+                                        if (userId == null || enterpriseId == null) {
+                                            errorMessage =
+                                                "Необходимо указать идентификатор пользователя"
+                                            return@Button
+                                        }
+                                        onAddService(userId, enterpriseId)
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 24.dp, vertical = 24.dp)
+                                        .height(52.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.Black,
+                                        contentColor = Color.White
+                                    ),
+                                    elevation = ButtonDefaults.buttonElevation(
+                                        defaultElevation = 0.dp,
+                                        pressedElevation = 0.dp
+                                    )
+                                ) {
+                                    Text(
+                                        "Добавить",
+                                        fontFamily = customFontFamily,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
                             }
                         } else {
                             LazyColumn(
@@ -164,8 +194,7 @@ fun ProfileEnterpriseSelectionScreen(
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                                 contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp)
                             ) {
-                                items(enterprises) { enterprise ->
-                                    val isCurrentEnterprise = enterprise.enterpriseId == enterpriseId
+                                items(services) { services ->
 
                                     Card(
                                         modifier = Modifier
@@ -173,25 +202,27 @@ fun ProfileEnterpriseSelectionScreen(
                                             .padding(vertical = 4.dp),
                                         shape = RoundedCornerShape(12.dp),
                                         colors = CardDefaults.cardColors(
-                                            containerColor = if (isCurrentEnterprise) Color.Gray.copy(alpha = 0.5f) else Color.Black,
-                                            contentColor = if (isCurrentEnterprise) Color.Black else Color.White
+                                            containerColor =Color.Black,
+                                            contentColor =Color.White
                                         )
                                     ) {
-                                        EnterpriseItem(
-                                            name = enterprise.enterpriseName,
-                                            role = enterprise.access ?: "Админ",
+                                        ServiceItem(
+                                            name = services.serviceName,
+                                            price  = services.price,
+                                            currency = services.currency,
+                                            length = services.length,
                                             onClick = {
                                                 try {
-                                                    if (userId == null) {
+                                                    if (userId == null || enterpriseId==null) {
                                                         errorMessage = "Идентификатор пользователя не может быть пустым"
                                                     } else {
-                                                        onEnterpriseSelected(userId, enterprise.enterpriseId)
+                                                        onEditService(userId, enterpriseId, services.id)
                                                     }
                                                 } catch (e: Exception) {
-                                                    errorMessage = "Ошибка выбора предприятия: ${e.localizedMessage}"
+                                                    errorMessage = "Ошибка выбора: ${e.localizedMessage}"
                                                 }
                                             },
-                                            textColor = if (isCurrentEnterprise) Color.Black else Color.White
+                                            textColor = Color.White
                                         )
                                     }
                                 }
@@ -205,7 +236,7 @@ fun ProfileEnterpriseSelectionScreen(
                                 if (userId == null || enterpriseId == null) {
                                     errorMessage = "Необходимо указать идентификатор пользователя"
                                 } else {
-                                    onEditEnterprise(userId, enterpriseId)
+                                    onAddService(userId, enterpriseId)
                                 }
                             } catch (e: Exception) {
                                 errorMessage = "Ошибка редактирования: ${e.localizedMessage}"
@@ -214,7 +245,7 @@ fun ProfileEnterpriseSelectionScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 24.dp, vertical = 24.dp)
-                            .height(64.dp),
+                            .height(52.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Black,
@@ -226,7 +257,7 @@ fun ProfileEnterpriseSelectionScreen(
                         )
                     ) {
                         Text(
-                            "Редактировать текущее предприятие",
+                            "Добавить",
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center,
                             fontFamily = customFontFamily,
@@ -236,6 +267,68 @@ fun ProfileEnterpriseSelectionScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun ServiceItem(
+    name: String,
+    price: Double,
+    currency: String,
+    length: Int,
+    onClick: () -> Unit,
+    textColor: Color = Color.White
+) {
+    val formattedPrice = "%.2f %s".format(price, currency)
+
+    val (hours, minutes) = length.run {
+        Pair(this / 60, this % 60)
+    }
+    val durationText = when {
+        hours > 0 && minutes > 0 -> "$hours ч $minutes мин"
+        hours > 0 -> "$hours ч"
+        else -> "$minutes мин"
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(16.dp)
+    ) {
+        Text(
+            text = name,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.Bold,
+                color = textColor
+            )
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = formattedPrice,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = textColor.copy(alpha = 0.9f)
+                )
+            )
+
+            Text(
+                text = "•",
+                color = textColor.copy(alpha = 0.5f)
+            )
+
+            Text(
+                text = durationText,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = textColor.copy(alpha = 0.8f)
+                )
+            )
         }
     }
 }

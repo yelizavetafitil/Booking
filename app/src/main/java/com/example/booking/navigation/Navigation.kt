@@ -13,10 +13,14 @@ import com.example.booking.view.EnterpriseRegistrationScreen
 import com.example.booking.view.EnterpriseSelectionScreen
 import com.example.booking.view.EntryScreen
 import com.example.booking.view.LoginRegistrationScreen
+import com.example.booking.view.ManagementScreen
 import com.example.booking.view.ProfileEditScreen
 import com.example.booking.view.ProfileEnterpriseSelectionScreen
 import com.example.booking.view.ProfileScreen
 import com.example.booking.view.RegistrationScreen
+import com.example.booking.view.ServiceAddScreen
+import com.example.booking.view.ServiceEditScreen
+import com.example.booking.view.ServiceScreen
 
 sealed class Screen(val route: String) {
     object Login : Screen("login")
@@ -42,6 +46,18 @@ sealed class Screen(val route: String) {
     }
     object EnterpriseEdit : Screen("editEnterprise/{userId}&{enterpriseId}") {
         fun createRoute(userId: Int, enterpriseId: Int) = "editEnterprise/$userId&$enterpriseId"
+    }
+    object Management : Screen("management/{userId}&{enterpriseId}") {
+        fun createRoute(userId: Int, enterpriseId: Int) = "management/$userId&$enterpriseId"
+    }
+    object Service : Screen("service/{userId}&{enterpriseId}") {
+        fun createRoute(userId: Int, enterpriseId: Int) = "service/$userId&$enterpriseId"
+    }
+    object ServiceAdd : Screen("serviceAdd/{userId}&{enterpriseId}") {
+        fun createRoute(userId: Int, enterpriseId: Int) = "serviceAdd/$userId&$enterpriseId"
+    }
+    object ServiceEdit : Screen("serviceEdit/{userId}&{enterpriseId}&{serviceId}") {
+        fun createRoute(userId: Int, enterpriseId: Int, serviceId: Int) = "serviceEdit/$userId&$enterpriseId&$serviceId"
     }
 }
 
@@ -189,7 +205,11 @@ fun AppNavigation() {
                     navController.navigate(Screen.Login.route)
                 },
                 onManagementClick = {userId, enterpriseId ->
-
+                    userId?.let {
+                        enterpriseId?.let {
+                            navController.navigate(Screen.Management.createRoute(userId, enterpriseId))
+                        }
+                    }
                 },
                 onCalendarClick = {userId, enterpriseId ->
 
@@ -298,6 +318,146 @@ fun AppNavigation() {
                     userId?.let {
                         enterpriseId?.let {
                             navController.navigate(Screen.Profile.createRoute(userId, enterpriseId))
+                        }
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = Screen.Management.route,
+            arguments = listOf(navArgument("userId") { type = NavType.IntType },
+                navArgument("enterpriseId") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getInt("userId")
+            val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId")
+            ManagementScreen(
+                userId = userId,
+                enterpriseId = enterpriseId,
+                onProfileClick = { userId, enterpriseId ->
+                    userId?.let {
+                        enterpriseId?.let {
+                            navController.navigate(Screen.Profile.createRoute(userId, enterpriseId))
+                        }
+                    }
+                },
+                onCalendarClick = { userId, enterpriseId ->
+
+                },
+                onServiceClick = {userId, enterpriseId ->
+                    userId?.let {
+                        enterpriseId?.let {
+                            navController.navigate(Screen.Service.createRoute(userId, enterpriseId))
+                        }
+                    }
+                },
+                onEmployeeClick = {userId, enterpriseId ->
+
+                },
+                onAnalyticsClick = {userId, enterpriseId ->
+
+                }
+            )
+        }
+
+        composable(
+            route = Screen.Service.route,
+            arguments = listOf(navArgument("userId") { type = NavType.IntType },
+                navArgument("enterpriseId") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getInt("userId")
+            val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId")
+            ServiceScreen(
+                userId = userId,
+                enterpriseId = enterpriseId,
+                onEditService = { userId, enterpriseId, serviceId ->
+                    userId?.let {
+                        enterpriseId?.let {
+                            serviceId?.let {
+                                navController.navigate(Screen.ServiceEdit.createRoute(userId, enterpriseId, serviceId))
+                            }
+                        }
+                    }
+                },
+                onAddService = {userId, enterpriseId ->
+                    userId?.let {
+                        enterpriseId?.let {
+                            navController.navigate(Screen.ServiceAdd.createRoute(userId, enterpriseId))
+                        }
+                    }
+                },
+                onBackClick = {userId, enterpriseId ->
+                    userId?.let {
+                        enterpriseId?.let {
+                            navController.navigate(Screen.Management.createRoute(userId, enterpriseId))
+                        }
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = Screen.ServiceAdd.route,
+            arguments = listOf(navArgument("userId") { type = NavType.IntType },
+                navArgument("enterpriseId") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getInt("userId")
+            val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId")
+            ServiceAddScreen(
+                userId = userId,
+                enterpriseId = enterpriseId,
+                onSaveClick = {userId, enterpriseId ->
+                    userId?.let {
+                        enterpriseId?.let {
+                            navController.navigate(Screen.Service.createRoute(userId, enterpriseId))
+                        }
+                    }
+                },
+                onBackClick = {userId, enterpriseId ->
+                    userId?.let {
+                        enterpriseId?.let {
+                            navController.navigate(Screen.Service.createRoute(userId, enterpriseId))
+                        }
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = Screen.ServiceEdit.route,
+            arguments = listOf(navArgument("userId") { type = NavType.IntType },
+                navArgument("enterpriseId") { type = NavType.IntType },
+                navArgument("serviceId") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getInt("userId")
+            val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId")
+            val serviceId = backStackEntry.arguments?.getInt("serviceId")
+            ServiceEditScreen (
+                userId = userId,
+                enterpriseId = enterpriseId,
+                serviceId = serviceId,
+                onSaveClick = {userId, enterpriseId ->
+                    userId?.let {
+                        enterpriseId?.let {
+                            navController.navigate(Screen.Service.createRoute(userId, enterpriseId))
+                        }
+                    }
+                },
+                onDeleteClick = {userId, enterpriseId ->
+                    userId?.let {
+                        enterpriseId?.let {
+                            navController.navigate(Screen.Service.createRoute(userId, enterpriseId))
+                        }
+                    }
+                },
+                onBackClick = {userId, enterpriseId ->
+                    userId?.let {
+                        enterpriseId?.let {
+                            navController.navigate(Screen.Service.createRoute(userId, enterpriseId))
                         }
                     }
                 }
