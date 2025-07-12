@@ -1,5 +1,6 @@
 package com.example.booking.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -9,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.booking.data.*
 import com.example.booking.models.*
 import io.ktor.client.plugins.ResponseException
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.launch
 
@@ -52,6 +54,35 @@ class EmployeeViewModel : ViewModel() {
         }
     }
 
+
+    private val _currentEmployees = mutableStateOf<Set<Int>>(emptySet())
+    val currentEmployees: Set<Int> get() = _currentEmployees.value
+
+    var isLoading by mutableStateOf(false)
+        private set
+
+    var error by mutableStateOf<String?>(null)
+        private set
+
+    fun loadCurrentEmployees(serviceId: Int) {
+        viewModelScope.launch {
+            isLoading = true
+            error = null
+            try {
+                _currentEmployees.value = networkEmployee
+                    .getCurrentServiceEmployees(serviceId)
+                    .toSet()
+            } catch (e: Exception) {
+                error = e.localizedMessage ?: "Failed to load employees"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    fun clearError() {
+        error = null
+    }
 
     fun loadEmployee(employeeId: Int, onSuccess: () -> Unit) {
         viewModelScope.launch {
@@ -113,6 +144,66 @@ class EmployeeViewModel : ViewModel() {
         viewModelScope.launch {
             networkEmployee.deleteEmployee(employeeId)
             onSuccess()
+        }
+    }
+
+
+    fun EmployeesToService(
+        serviceId: Int,
+        employeeIds: List<Int>,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val request = EmployeesToService(
+                    service_id = serviceId,
+                    employee_ids = employeeIds
+                )
+
+                val isSuccess = networkEmployee.EmployeesToService(request)
+
+                if (isSuccess) {
+                    onSuccess()
+                } else {
+                    Log.e("EmployeesToService", "Operation failed")
+                }
+            } catch (e: Exception) {
+                val errorMessage = when (e) {
+                    is ResponseException -> {
+                        when (e.response.status) {
+                            HttpStatusCode.BadRequest -> "Некорректный запрос: ${e.response.bodyAsText()}"
+                            HttpStatusCode.NotFound -> "Услуга или сотрудники не найдены"
+                            else -> "Ошибка сервера: ${e.response.status}"
+                        }
+                    }
+                    is IllegalArgumentException -> e.message ?: "Ошибка валидации"
+                    else -> "Ошибка сети: ${e.localizedMessage ?: "Неизвестная ошибка"}"
+                }
+                Log.e("EmployeesToService", errorMessage)
+            }
+        }
+    }
+
+    fun updateServiceEmployees(
+        serviceId: Int,
+        employeeIds: List<Int>,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            isLoading = true
+            error = null
+            try {
+                val success = networkEmployee.updateServiceEmployees(serviceId, employeeIds)
+                if (success) {
+                    onSuccess()
+                } else {
+                    error = "Operation failed"
+                }
+            } catch (e: Exception) {
+                error = e.localizedMessage ?: "Failed to update employees"
+            } finally {
+                isLoading = false
+            }
         }
     }
 

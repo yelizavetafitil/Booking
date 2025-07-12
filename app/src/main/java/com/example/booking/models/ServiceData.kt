@@ -34,3 +34,25 @@ data class ServiceEdit(
     val length: Int,
     val breakDuration: Int
 )
+
+@OptIn(InternalSerializationApi::class)
+@Serializable
+data class EmployeesToService(
+    val service_id: Int,
+    val employee_ids: List<Int>
+)
+
+@OptIn(InternalSerializationApi::class)
+@Serializable
+data class ServiceAddResponse(
+    val serviceId: Int,
+    val success: Boolean,
+    val message: String?
+)
+
+@OptIn(InternalSerializationApi::class)
+@Serializable
+data class ServiceEmployeeResponse(
+    val employee_id: Int,
+    val service_id: Int
+)

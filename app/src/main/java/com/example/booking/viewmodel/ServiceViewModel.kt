@@ -19,12 +19,14 @@ class ServiceViewModel : ViewModel() {
          currency: String,
          length: Int,
          breakDuration: Int,
-         onSuccess: () -> Unit, onError: (String) -> Unit) {
+         onSuccess: (Int) -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             val Data = ServiceData(enterpriseId, serviceName, price, currency, length, breakDuration)
             try {
-                networkService.addService(Data)
-                onSuccess()
+                val response = networkService.addService(Data)
+                if (response.success) {
+                    onSuccess(response.serviceId)
+                }
             } catch (e: Exception) {
                 val errorMessage = e.localizedMessage ?: "Ошибка регистрации"
                 onError(errorMessage)

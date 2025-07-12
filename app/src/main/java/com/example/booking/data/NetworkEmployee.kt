@@ -130,4 +130,61 @@ class NetworkEmployee {
             }
         }
     }
+
+    suspend fun EmployeesToService(request: EmployeesToService): Boolean {
+        return try {
+            val response = client.post("http://10.0.2.2:8080/service-employees") {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }
+
+            when (response.status) {
+                HttpStatusCode.OK -> true
+                HttpStatusCode.BadRequest -> throw IllegalArgumentException(response.bodyAsText())
+                else -> false
+            }
+        } catch (e: Exception) {
+            throw when (e) {
+                is IllegalArgumentException -> e
+                else -> Exception("Network error: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    suspend fun getCurrentServiceEmployees(serviceId: Int): List<Int> {
+        return try {
+            val response = client.get("http://10.0.2.2:8080/service-employees/$serviceId") {
+                contentType(ContentType.Application.Json)
+            }
+
+            when (response.status) {
+                HttpStatusCode.OK -> response.body<List<Int>>()
+                HttpStatusCode.NotFound -> emptyList()
+                else -> throw Exception("Server error: ${response.status}")
+            }
+        } catch (e: Exception) {
+            throw Exception("Failed to load employees: ${e.localizedMessage}")
+        }
+    }
+
+    suspend fun updateServiceEmployees(serviceId: Int, employeeIds: List<Int>): Boolean {
+        return try {
+            val response = client.put("http://10.0.2.2:8080/service-employees/$serviceId") {
+                contentType(ContentType.Application.Json)
+                setBody(employeeIds)
+            }
+
+            when (response.status) {
+                HttpStatusCode.OK -> true
+                HttpStatusCode.BadRequest -> throw IllegalArgumentException(response.bodyAsText())
+                else -> false
+            }
+        } catch (e: Exception) {
+            throw when (e) {
+                is IllegalArgumentException -> e
+                else -> Exception("Network error: ${e.localizedMessage}")
+            }
+        }
+    }
+
 }

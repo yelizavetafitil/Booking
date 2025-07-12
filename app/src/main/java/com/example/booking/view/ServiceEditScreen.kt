@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -35,7 +36,7 @@ fun ServiceEditScreen(
     enterpriseId: Int?,
     serviceId: Int?,
     onBackClick: (userId: Int?, enterpriseId: Int) -> Unit,
-    onSaveClick: (userId: Int?, enterpriseId: Int) -> Unit,
+    onSaveClick: (userId: Int?, enterpriseId: Int, serviceId: Int) -> Unit,
     onDeleteClick: (userId: Int?, enterpriseId: Int) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
@@ -379,7 +380,7 @@ fun ServiceEditScreen(
                                                 length = length.toInt(),
                                                 breakDuration = breakDuration.toIntOrNull() ?: 0,
                                                 onSuccess = {
-                                                    onSaveClick(userId, enterpriseId)
+                                                    onSaveClick(userId, enterpriseId, serviceId)
                                                 }
                                             )
                                         }
@@ -392,7 +393,7 @@ fun ServiceEditScreen(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(52.dp),
+                            .height(80.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Black,
@@ -400,7 +401,9 @@ fun ServiceEditScreen(
                         )
                     ) {
                         Text(
-                            "Сохранить",
+                            "Сохранить и перейти к редактированию привязанных сотрудников",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center,
                             fontFamily = customFontFamily,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Medium

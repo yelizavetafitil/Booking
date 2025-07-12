@@ -34,7 +34,7 @@ fun ServiceAddScreen(
     userId: Int?,
     enterpriseId: Int?,
     onBackClick: (userId: Int?, enterpriseId: Int) -> Unit,
-    onSaveClick: (userId: Int?, enterpriseId: Int) -> Unit
+    onSaveClick: (userId: Int?, enterpriseId: Int, serviceId: Int) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -358,8 +358,8 @@ fun ServiceAddScreen(
                                                 currency = selectedCurrency,
                                                 length = duration.toInt(),
                                                 breakDuration = breakDuration.toIntOrNull() ?: 0,
-                                                onSuccess = {
-                                                    onSaveClick(userId, enterpriseId)
+                                                onSuccess = { serviceId ->
+                                                    onSaveClick(userId, enterpriseId, serviceId)
                                                 },
                                                 onError = { message ->
                                                     errorMessage = message

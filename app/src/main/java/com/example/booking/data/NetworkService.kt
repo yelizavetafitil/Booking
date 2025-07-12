@@ -35,31 +35,23 @@ class NetworkService {
         expectSuccess = false
     }
 
-    suspend fun addService(data: ServiceData) {
-        withContext(Dispatchers.IO) {
-            try {
-                val response = client.post("http://10.0.2.2:8080/addService") {
-                    contentType(ContentType.Application.Json)
-                    setBody(data)
-                    accept(ContentType.Application.Json)
-                }
-                println("Response status: ${response.status}")
-                if (response.status == HttpStatusCode.Conflict) {
-                    val errorMessage = response.body<String>()
-                    throw Exception(errorMessage)
-                }
-                if (response.status == HttpStatusCode.BadRequest) {
-                    val errorMessage = response.body<String>()
-                    throw Exception(errorMessage)
-                }
-            } catch (e: Exception) {
-                println("Ошибка: ${e.message}")
-                if (e is ResponseException) {
-                    println("Статус ответа: ${e.response.status}")
-                    println("Тело ответа: ${e.response.body<String>()}")
-                }
-                throw e
+    suspend fun addService(data: ServiceData): ServiceAddResponse {
+        return try {
+            val response = client.post("http://10.0.2.2:8080/addService") {
+                contentType(ContentType.Application.Json)
+                setBody(data)
             }
+            if (response.status == HttpStatusCode.Created) {
+                response.body()
+            } else {
+                throw Exception("Unexpected status: ${response.status}")
+            }
+        } catch (e: Exception) {
+            ServiceAddResponse(
+                serviceId = 0,
+                success = false,
+                message = e.localizedMessage ?: "Unknown error"
+            )
         }
     }
 

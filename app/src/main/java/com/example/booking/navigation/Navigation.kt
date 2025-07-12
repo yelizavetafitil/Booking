@@ -31,7 +31,9 @@
     import com.example.booking.view.ProfileEnterpriseSelectionScreen
     import com.example.booking.view.ProfileScreen
     import com.example.booking.view.RegistrationScreen
+    import com.example.booking.view.ServiceAddEmployeeScreen
     import com.example.booking.view.ServiceAddScreen
+    import com.example.booking.view.ServiceEditEmployeeScreen
     import com.example.booking.view.ServiceEditScreen
     import com.example.booking.view.ServiceScreen
     import com.example.booking.viewmodel.EmployeeViewModel
@@ -90,6 +92,12 @@
         }
         object AccessEditSelection : Screen("accessEditSelection/{userId}&{enterpriseId}&{employeeId}") {
             fun createRoute(userId: Int, enterpriseId: Int, employeeId: Int) = "accessEditSelection/$userId&$enterpriseId&$employeeId"
+        }
+        object ServiceAddEmployee : Screen("ServiceAddEmployee/{userId}&{enterpriseId}&{serviceId}") {
+            fun createRoute(userId: Int, enterpriseId: Int, serviceId: Int) = "ServiceAddEmployee/$userId&$enterpriseId&$serviceId"
+        }
+        object ServiceEditEmployee : Screen("ServiceEditEmployee/{userId}&{enterpriseId}&{serviceId}") {
+            fun createRoute(userId: Int, enterpriseId: Int, serviceId: Int) = "ServiceEditEmployee/$userId&$enterpriseId&$serviceId"
         }
     }
 
@@ -447,10 +455,14 @@
                 ServiceAddScreen(
                     userId = userId,
                     enterpriseId = enterpriseId,
-                    onSaveClick = {userId, enterpriseId ->
+                    onSaveClick = {userId, enterpriseId, serviceId ->
                         userId?.let {
                             enterpriseId?.let {
-                                navController.navigate(Screen.Service.createRoute(userId, enterpriseId))
+                                serviceId?.let {
+                                    navController.navigate(
+                                        Screen.ServiceAddEmployee.createRoute(userId, enterpriseId, serviceId)
+                                    )
+                                }
                             }
                         }
                     },
@@ -478,10 +490,11 @@
                     userId = userId,
                     enterpriseId = enterpriseId,
                     serviceId = serviceId,
-                    onSaveClick = {userId, enterpriseId ->
+                    onSaveClick = {userId, enterpriseId, serviceId ->
                         userId?.let {
                             enterpriseId?.let {
-                                navController.navigate(Screen.Service.createRoute(userId, enterpriseId))
+                                serviceId?.let { navController.navigate(Screen.ServiceEditEmployee.createRoute(userId, enterpriseId, serviceId))
+                                }
                             }
                         }
                     },
@@ -709,6 +722,70 @@
                     },
                     onBackClick = {
                         navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.ServiceAddEmployee.route,
+                arguments = listOf(
+                    navArgument("userId") { type = NavType.IntType },
+                    navArgument("enterpriseId") { type = NavType.IntType },
+                    navArgument("serviceId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getInt("userId")
+                val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId")
+                val serviceId = backStackEntry.arguments?.getInt("serviceId")
+                ServiceAddEmployeeScreen(
+                    userId = userId,
+                    enterpriseId = enterpriseId,
+                    serviceId = serviceId,
+                    onAddEmployee = { userId, enterpriseId ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                navController.navigate(Screen.Service.createRoute(userId, enterpriseId))
+                            }
+                        }
+                    },
+                    onBackClick = { userId, enterpriseId ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                navController.navigate(Screen.Service.createRoute(userId, enterpriseId))
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.ServiceEditEmployee.route,
+                arguments = listOf(
+                    navArgument("userId") { type = NavType.IntType },
+                    navArgument("enterpriseId") { type = NavType.IntType },
+                    navArgument("serviceId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getInt("userId")
+                val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId")
+                val serviceId = backStackEntry.arguments?.getInt("serviceId")
+                ServiceEditEmployeeScreen(
+                    userId = userId,
+                    enterpriseId = enterpriseId,
+                    serviceId = serviceId,
+                    onSuccess = { userId, enterpriseId ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                navController.navigate(Screen.Service.createRoute(userId, enterpriseId))
+                            }
+                        }
+                    },
+                    onBackClick = { userId, enterpriseId ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                navController.navigate(Screen.Service.createRoute(userId, enterpriseId))
+                            }
+                        }
                     }
                 )
             }
