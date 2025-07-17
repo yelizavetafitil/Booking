@@ -16,6 +16,8 @@
     import androidx.navigation.navArgument
     import com.example.booking.view.AccessEditSelectionScreen
     import com.example.booking.view.AccessSelectionScreen
+    import com.example.booking.view.ChartEmployeeSelectScreen
+    import com.example.booking.view.ChartEmployeeSetUpScreen
     import com.example.booking.view.EmployeeAddScreen
     import com.example.booking.view.EmployeeEditScreen
     import com.example.booking.view.EmployeeScreen
@@ -36,6 +38,10 @@
     import com.example.booking.view.ServiceEditEmployeeScreen
     import com.example.booking.view.ServiceEditScreen
     import com.example.booking.view.ServiceScreen
+    import com.example.booking.view.WorkingHoursScreen
+    import com.example.booking.view.WorkingWeeksHoursScreen
+    import com.example.booking.view.WorkingWeeksHoursSetUpScreen
+    import com.example.booking.view.WorkingWeeksHoursSetUpScreenFinish
     import com.example.booking.viewmodel.EmployeeViewModel
 
     sealed class Screen(val route: String) {
@@ -98,6 +104,24 @@
         }
         object ServiceEditEmployee : Screen("ServiceEditEmployee/{userId}&{enterpriseId}&{serviceId}") {
             fun createRoute(userId: Int, enterpriseId: Int, serviceId: Int) = "ServiceEditEmployee/$userId&$enterpriseId&$serviceId"
+        }
+        object ChartEmployeeSelect : Screen("ChartEmployeeSelect/{userId}&{enterpriseId}") {
+            fun createRoute(userId: Int, enterpriseId: Int) = "ChartEmployeeSelect/$userId&$enterpriseId"
+        }
+        object ChartEmployeeSetUp : Screen("ChartEmployeeSetUp/{userId}&{enterpriseId}&{employeeId}") {
+            fun createRoute(userId: Int, enterpriseId: Int, employeeId: Int) = "ChartEmployeeSetUp/$userId&$enterpriseId&$employeeId"
+        }
+        object WorkingHours : Screen("WorkingHours/{userId}&{enterpriseId}&{employeeId}&{level}") {
+            fun createRoute(userId: Int, enterpriseId: Int, employeeId: Int, level: String) = "WorkingHours/$userId&$enterpriseId&$employeeId&$level"
+        }
+        object WorkingWeeksHours : Screen("WorkingWeeksHours/{userId}&{enterpriseId}&{employeeId}&{level}") {
+            fun createRoute(userId: Int, enterpriseId: Int, employeeId: Int, level: String) = "WorkingWeeksHours/$userId&$enterpriseId&$employeeId&$level"
+        }
+        object WorkingWeeksHoursSetUp : Screen("WorkingWeeksHoursSetUp/{userId}&{enterpriseId}&{employeeId}&{level}&{dayOfWeek}") {
+            fun createRoute(userId: Int, enterpriseId: Int, employeeId: Int, level: String, dayOfWeek: String) = "WorkingWeeksHoursSetUp/$userId&$enterpriseId&$employeeId&$level&$dayOfWeek"
+        }
+        object WorkingWeeksHoursSetUpFinish : Screen("WorkingWeeksHoursSetUpFinish/{userId}&{enterpriseId}&{employeeId}&{level}&{dayOfWeek}&{subType}") {
+            fun createRoute(userId: Int, enterpriseId: Int, employeeId: Int, level: String, dayOfWeek: String, subType: String) = "WorkingWeeksHoursSetUpFinish/$userId&$enterpriseId&$employeeId&$level&$dayOfWeek&$subType"
         }
     }
 
@@ -534,7 +558,11 @@
                         }
                     },
                     onChartClick = {userId, enterpriseId ->
-
+                        userId?.let {
+                            enterpriseId?.let {
+                                navController.navigate(Screen.ChartEmployeeSelect.createRoute(userId, enterpriseId))
+                            }
+                        }
                     },
                     onBackClick = {userId, enterpriseId ->
                         userId?.let {
@@ -784,6 +812,253 @@
                         userId?.let {
                             enterpriseId?.let {
                                 navController.navigate(Screen.Service.createRoute(userId, enterpriseId))
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.ChartEmployeeSelect.route,
+                arguments = listOf(navArgument("userId") { type = NavType.IntType },
+                    navArgument("enterpriseId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getInt("userId")
+                val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId")
+                ChartEmployeeSelectScreen(
+                    userId = userId,
+                    enterpriseId = enterpriseId,
+                    onEditEmployee = {userId, enterpriseId, employeeId ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                employeeId?.let {
+                                    navController.navigate(Screen.ChartEmployeeSetUp.createRoute(userId, enterpriseId, employeeId))
+                                }
+                            }
+                        }
+                    },
+                    onBackClick = {userId, enterpriseId ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                navController.navigate(Screen.Employee.createRoute(userId, enterpriseId))
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.ChartEmployeeSetUp.route,
+                arguments = listOf(navArgument("userId") { type = NavType.IntType },
+                    navArgument("enterpriseId") { type = NavType.IntType },
+                    navArgument("employeeId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getInt("userId")
+                val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId")
+                val employeeId = backStackEntry.arguments?.getInt("employeeId")
+                ChartEmployeeSetUpScreen(
+                    userId = userId,
+                    enterpriseId = enterpriseId,
+                    employeeId = employeeId,
+                    onNextClick = {userId, enterpriseId, employeeId, level ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                employeeId?.let {
+                                    navController.navigate(Screen.WorkingHours.createRoute(userId, enterpriseId, employeeId, level ))
+                                }
+                            }
+                        }
+                    },
+                    onNextWeekClick = {userId, enterpriseId, employeeId, level ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                employeeId?.let {
+                                    navController.navigate(Screen.WorkingWeeksHours.createRoute(userId, enterpriseId, employeeId, level ))
+                                }
+                            }
+                        }
+                    },
+                    onBackClick = {userId, enterpriseId ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                navController.navigate(Screen.ChartEmployeeSelect.createRoute(userId, enterpriseId))
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.WorkingHours.route,
+                arguments = listOf(navArgument("userId") { type = NavType.IntType },
+                    navArgument("enterpriseId") { type = NavType.IntType },
+                    navArgument("employeeId") { type = NavType.IntType },
+                    navArgument("level") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getInt("userId")
+                val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId")
+                val employeeId = backStackEntry.arguments?.getInt("employeeId")
+                val level = backStackEntry.arguments?.getString("level")?: ""
+                WorkingHoursScreen(
+                    userId = userId,
+                    enterpriseId = enterpriseId,
+                    employeeId = employeeId,
+                    level = level,
+                    onSaveClick = {userId, enterpriseId ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                navController.navigate(Screen.ChartEmployeeSelect.createRoute(userId, enterpriseId))
+                            }
+                        }
+                    },
+                    onBackClick = {userId, enterpriseId, employeeId  ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                employeeId?.let {
+                                    navController.navigate(Screen.ChartEmployeeSetUp.createRoute(userId, enterpriseId, employeeId))
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.WorkingWeeksHours.route,
+                arguments = listOf(navArgument("userId") { type = NavType.IntType },
+                    navArgument("enterpriseId") { type = NavType.IntType },
+                    navArgument("employeeId") { type = NavType.IntType },
+                    navArgument("level") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getInt("userId")
+                val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId")
+                val employeeId = backStackEntry.arguments?.getInt("employeeId")
+                val level = backStackEntry.arguments?.getString("level")?: ""
+                WorkingWeeksHoursScreen(
+                    userId = userId,
+                    enterpriseId = enterpriseId,
+                    employeeId = employeeId,
+                    level = level,
+                    onSaveClick = {userId, enterpriseId, employeeId , level, dayOfWeek  ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                employeeId?.let {
+                                    level?.let {
+                                        dayOfWeek?.let {
+                                            navController.navigate(Screen.WorkingWeeksHoursSetUp.createRoute(userId, enterpriseId, employeeId, level, dayOfWeek))
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    onBackClick = {userId, enterpriseId, employeeId  ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                employeeId?.let {
+                                    navController.navigate(Screen.ChartEmployeeSetUp.createRoute(userId, enterpriseId, employeeId))
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.WorkingWeeksHoursSetUp.route,
+                arguments = listOf(navArgument("userId") { type = NavType.IntType },
+                    navArgument("enterpriseId") { type = NavType.IntType },
+                    navArgument("employeeId") { type = NavType.IntType },
+                    navArgument("level") { type = NavType.StringType },
+                    navArgument("dayOfWeek") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getInt("userId")
+                val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId")
+                val employeeId = backStackEntry.arguments?.getInt("employeeId")
+                val level = backStackEntry.arguments?.getString("level")?: ""
+                val dayOfWeek = backStackEntry.arguments?.getString("dayOfWeek")?: ""
+                WorkingWeeksHoursSetUpScreen(
+                    userId = userId,
+                    enterpriseId = enterpriseId,
+                    employeeId = employeeId,
+                    level = level,
+                    dayOfWeek = dayOfWeek,
+                    onSaveClick = {userId, enterpriseId, employeeId , level, dayOfWeek, subType  ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                employeeId?.let {
+                                    level?.let {
+                                        dayOfWeek?.let {
+                                            subType?.let {
+                                                navController.navigate(Screen.WorkingWeeksHoursSetUpFinish.createRoute(userId, enterpriseId, employeeId, level, dayOfWeek, subType))
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    onBackClick = {userId, enterpriseId, employeeId, level ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                employeeId?.let {
+                                    level?.let {
+                                        navController.navigate(Screen.WorkingWeeksHours.createRoute(userId, enterpriseId, employeeId, level))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.WorkingWeeksHoursSetUpFinish.route,
+                arguments = listOf(navArgument("userId") { type = NavType.IntType },
+                    navArgument("enterpriseId") { type = NavType.IntType },
+                    navArgument("employeeId") { type = NavType.IntType },
+                    navArgument("level") { type = NavType.StringType },
+                    navArgument("dayOfWeek") { type = NavType.StringType },
+                    navArgument("subType") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getInt("userId")
+                val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId")
+                val employeeId = backStackEntry.arguments?.getInt("employeeId")
+                val level = backStackEntry.arguments?.getString("level")?: ""
+                val dayOfWeek = backStackEntry.arguments?.getString("dayOfWeek")?: ""
+                val subType = backStackEntry.arguments?.getString("subType")?: ""
+                WorkingWeeksHoursSetUpScreenFinish(
+                    userId = userId,
+                    enterpriseId = enterpriseId,
+                    employeeId = employeeId,
+                    level = level,
+                    dayOfWeek = dayOfWeek,
+                    subType = subType,
+                    onSaveClick = {userId, enterpriseId ->
+                        userId?.let {
+                            enterpriseId?.let {
+
+                                navController.navigate(Screen.ChartEmployeeSelect.createRoute(userId, enterpriseId))
+
+                            }
+                        }
+                    },
+                    onBackClick = {userId, enterpriseId, employeeId, level, dayOfWeek  ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                employeeId?.let {
+                                    level?.let {
+                                        dayOfWeek?.let {
+                                            navController.navigate(Screen.WorkingWeeksHoursSetUp.createRoute(userId, enterpriseId, employeeId, level, dayOfWeek))
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

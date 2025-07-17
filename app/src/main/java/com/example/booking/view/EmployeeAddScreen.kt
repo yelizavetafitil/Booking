@@ -236,7 +236,7 @@ fun EmployeeAddScreen(
                                 Text(
                                     text = "Текущий доступ: ${viewModel.currentAccess}",
                                     style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.Medium
                                     )
                                 )
                             }
@@ -250,7 +250,7 @@ fun EmployeeAddScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
-                        shape = RoundedCornerShape(24.dp),
+                        shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Black,
                             contentColor = Color.White

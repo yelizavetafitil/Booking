@@ -80,10 +80,6 @@ class EmployeeViewModel : ViewModel() {
         }
     }
 
-    fun clearError() {
-        error = null
-    }
-
     fun loadEmployee(employeeId: Int, onSuccess: () -> Unit) {
         viewModelScope.launch {
             try {
