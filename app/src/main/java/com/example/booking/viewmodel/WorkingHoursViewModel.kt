@@ -17,6 +17,7 @@ class WorkingHoursViewModel(
 
     var workingHours by mutableStateOf<WorkingHoursData?>(null)
     var workingWeeksHours by mutableStateOf<WorkingWeeksHoursData?>(null)
+    var workingChoiceHours by mutableStateOf<WorkingChoiceHoursData?>(null)
     var isLoading by mutableStateOf(false)
     var error by mutableStateOf<String?>(null)
     var currentScheduleType by mutableStateOf<String?>(null)
@@ -74,6 +75,50 @@ class WorkingHoursViewModel(
                         workingWeeksHours = WorkingWeeksHoursData(
                             scheduleType = firstSchedule.scheduleType,
                             dayOfWeek = firstSchedule.dayOfWeek,
+                            scheduleSubType = firstSchedule.scheduleSubType,
+                            workTime = WorkTime(slot.startTime, slot.endTime),
+                            period = WorkPeriod(slot.validFrom, slot.validTo),
+                            breaks = slot.breaks.map {
+                                BreakTime(it.startTime, it.endTime)
+                            }
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                error = "Ошибка загрузки: ${e.message}"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    fun loadWorkingChoiceHours(
+        employeeId: Int,
+        scheduleType: String?,
+        dayWork: String?,
+        dayRest: String?,
+        scheduleSubType: String?
+    ) {
+        viewModelScope.launch {
+            isLoading = true
+            error = null
+            try {
+                val response = networkWorkingHours.getWorkingChoiceHours(
+                    employeeId,
+                    scheduleType,
+                    dayWork,
+                    dayRest,
+                    scheduleSubType
+                )
+
+                if (response.isNotEmpty()) {
+                    val firstSchedule = response[0]
+                    if (firstSchedule.workTimeSlots.isNotEmpty()) {
+                        val slot = firstSchedule.workTimeSlots[0]
+                        workingChoiceHours = WorkingChoiceHoursData(
+                            scheduleType = firstSchedule.scheduleType,
+                            dayWork = firstSchedule.dayWork,
+                            dayRest = firstSchedule.dayRest,
                             scheduleSubType = firstSchedule.scheduleSubType,
                             workTime = WorkTime(slot.startTime, slot.endTime),
                             period = WorkPeriod(slot.validFrom, slot.validTo),
@@ -163,6 +208,57 @@ class WorkingHoursViewModel(
                     workingWeeksHours = WorkingWeeksHoursData(
                         scheduleType,
                         dayOfWeeks,
+                        scheduleSubType,
+                        workTime,
+                        workPeriod,
+                        breaks
+                    )
+                    currentScheduleType = scheduleType
+                    onSuccess()
+                } else {
+                    error ="Не удалось сохранить график, проверьте формат," +
+                            " перерыв должен быть в пределах рабочего времени"
+                }
+            } catch (e: Exception) {
+                error = "Ошибка сохранения: ${e.message}"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+
+    fun saveWorkingChoiceHours(
+        employeeId: Int,
+        scheduleType: String,
+        dayWork: String,
+        dayRest: String,
+        scheduleSubType: String,
+        workTime: WorkTime,
+        workPeriod: WorkPeriod,
+        breaks: List<BreakTime>,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            isLoading = true
+            error = null
+            try {
+                val success = networkWorkingHours.saveWorkingChoiceHours(
+                    employeeId = employeeId,
+                    scheduleType = scheduleType,
+                    dayWork = dayWork,
+                    dayRest = dayRest,
+                    scheduleSubType = scheduleSubType,
+                    workTime = workTime,
+                    workPeriod = workPeriod,
+                    breaks = breaks
+                )
+
+                if (success) {
+                    workingChoiceHours = WorkingChoiceHoursData(
+                        scheduleType,
+                        dayWork,
+                        dayRest,
                         scheduleSubType,
                         workTime,
                         workPeriod,

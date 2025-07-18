@@ -16,6 +16,9 @@
     import androidx.navigation.navArgument
     import com.example.booking.view.AccessEditSelectionScreen
     import com.example.booking.view.AccessSelectionScreen
+    import com.example.booking.view.ChartChoiceHoursScreen
+    import com.example.booking.view.ChartChoiceScreen
+    import com.example.booking.view.ChartChoiceSetUpScreen
     import com.example.booking.view.ChartEmployeeSelectScreen
     import com.example.booking.view.ChartEmployeeSetUpScreen
     import com.example.booking.view.EmployeeAddScreen
@@ -122,6 +125,15 @@
         }
         object WorkingWeeksHoursSetUpFinish : Screen("WorkingWeeksHoursSetUpFinish/{userId}&{enterpriseId}&{employeeId}&{level}&{dayOfWeek}&{subType}") {
             fun createRoute(userId: Int, enterpriseId: Int, employeeId: Int, level: String, dayOfWeek: String, subType: String) = "WorkingWeeksHoursSetUpFinish/$userId&$enterpriseId&$employeeId&$level&$dayOfWeek&$subType"
+        }
+        object ChartChoice : Screen("ChartChoice/{userId}&{enterpriseId}&{employeeId}&{level}") {
+            fun createRoute(userId: Int, enterpriseId: Int, employeeId: Int, level: String) = "ChartChoice/$userId&$enterpriseId&$employeeId&$level"
+        }
+        object ChartChoiceSetUp : Screen("ChartChoiceSetUp/{userId}&{enterpriseId}&{employeeId}&{level}&{dayWork}&{dayRest}") {
+            fun createRoute(userId: Int, enterpriseId: Int, employeeId: Int, level: String, dayWork: String, dayRest: String) = "ChartChoiceSetUp/$userId&$enterpriseId&$employeeId&$level&$dayWork&$dayRest"
+        }
+        object ChartChoiceHours : Screen("ChartChoiceHours/{userId}&{enterpriseId}&{employeeId}&{level}&{dayWork}&{dayRest}&{subType}") {
+            fun createRoute(userId: Int, enterpriseId: Int, employeeId: Int, level: String, dayWork: String, dayRest: String, subType: String) = "ChartChoiceHours/$userId&$enterpriseId&$employeeId&$level&$dayWork&$dayRest&$subType"
         }
     }
 
@@ -880,6 +892,15 @@
                             }
                         }
                     },
+                    onNextChartClick = {userId, enterpriseId, employeeId, level ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                employeeId?.let {
+                                    navController.navigate(Screen.ChartChoice.createRoute(userId, enterpriseId, employeeId, level ))
+                                }
+                            }
+                        }
+                    },
                     onBackClick = {userId, enterpriseId ->
                         userId?.let {
                             enterpriseId?.let {
@@ -1056,6 +1077,155 @@
                                     level?.let {
                                         dayOfWeek?.let {
                                             navController.navigate(Screen.WorkingWeeksHoursSetUp.createRoute(userId, enterpriseId, employeeId, level, dayOfWeek))
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.ChartChoice.route,
+                arguments = listOf(navArgument("userId") { type = NavType.IntType },
+                    navArgument("enterpriseId") { type = NavType.IntType },
+                    navArgument("employeeId") { type = NavType.IntType },
+                    navArgument("level") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getInt("userId")
+                val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId")
+                val employeeId = backStackEntry.arguments?.getInt("employeeId")
+                val level = backStackEntry.arguments?.getString("level")?: ""
+                ChartChoiceScreen (
+                    userId = userId,
+                    enterpriseId = enterpriseId,
+                    employeeId = employeeId,
+                    level = level,
+                    onNextClick = {userId, enterpriseId, employeeId , level, dayWork, dayRest  ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                employeeId?.let {
+                                    level?.let {
+                                        dayWork?.let {
+                                            dayRest?.let {
+                                                navController.navigate(Screen.ChartChoiceSetUp.createRoute(userId, enterpriseId, employeeId, level, dayWork, dayRest))
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    onBackClick = {userId, enterpriseId, employeeId  ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                employeeId?.let {
+                                    navController.navigate(Screen.ChartEmployeeSetUp.createRoute(userId, enterpriseId, employeeId))
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.ChartChoiceSetUp.route,
+                arguments = listOf(navArgument("userId") { type = NavType.IntType },
+                    navArgument("enterpriseId") { type = NavType.IntType },
+                    navArgument("employeeId") { type = NavType.IntType },
+                    navArgument("level") { type = NavType.StringType },
+                    navArgument("dayWork") { type = NavType.StringType },
+                    navArgument("dayRest") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getInt("userId")
+                val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId")
+                val employeeId = backStackEntry.arguments?.getInt("employeeId")
+                val level = backStackEntry.arguments?.getString("level")?: ""
+                val dayWork = backStackEntry.arguments?.getString("dayWork")?: ""
+                val dayRest = backStackEntry.arguments?.getString("dayRest")?: ""
+                ChartChoiceSetUpScreen(
+                    userId = userId,
+                    enterpriseId = enterpriseId,
+                    employeeId = employeeId,
+                    level = level,
+                    dayWork = dayWork,
+                    dayRest = dayRest,
+                    onSaveClick = {userId, enterpriseId, employeeId , level,  dayWork, dayRest, subType  ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                employeeId?.let {
+                                    level?.let {
+                                        dayWork?.let {
+                                            dayRest?.let {
+                                                subType?.let {
+                                                    navController.navigate(Screen.ChartChoiceHours.createRoute(userId, enterpriseId, employeeId, level, dayWork, dayRest, subType))
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    onBackClick = {userId, enterpriseId, employeeId, level ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                employeeId?.let {
+                                    level?.let {
+                                        navController.navigate(Screen.ChartChoice.createRoute(userId, enterpriseId, employeeId, level))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.ChartChoiceHours.route,
+                arguments = listOf(navArgument("userId") { type = NavType.IntType },
+                    navArgument("enterpriseId") { type = NavType.IntType },
+                    navArgument("employeeId") { type = NavType.IntType },
+                    navArgument("level") { type = NavType.StringType },
+                    navArgument("dayWork") { type = NavType.StringType },
+                    navArgument("dayRest") { type = NavType.StringType },
+                    navArgument("subType") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getInt("userId")
+                val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId")
+                val employeeId = backStackEntry.arguments?.getInt("employeeId")
+                val level = backStackEntry.arguments?.getString("level")?: ""
+                val dayWork = backStackEntry.arguments?.getString("dayWork")?: ""
+                val dayRest = backStackEntry.arguments?.getString("dayRest")?: ""
+                val subType = backStackEntry.arguments?.getString("subType")?: ""
+                ChartChoiceHoursScreen (
+                    userId = userId,
+                    enterpriseId = enterpriseId,
+                    employeeId = employeeId,
+                    level = level,
+                    dayWork = dayWork,
+                    dayRest = dayRest,
+                    subType = subType,
+                    onSaveClick = {userId, enterpriseId ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                navController.navigate(Screen.ChartEmployeeSelect.createRoute(userId, enterpriseId))
+                            }
+                        }
+                    },
+                    onBackClick = {userId, enterpriseId, employeeId, level,  dayWork, dayRest,  ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                employeeId?.let {
+                                    level?.let {
+                                        dayWork?.let {
+                                            dayRest?.let {
+                                                navController.navigate(Screen.ChartChoiceSetUp.createRoute(userId, enterpriseId, employeeId, level, dayWork, dayRest))
+                                            }
                                         }
                                     }
                                 }

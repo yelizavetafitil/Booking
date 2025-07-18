@@ -85,4 +85,38 @@ data class WorkingWeeksHoursResponse(
     val workTimeSlots: List<WorkTimeSlotRequest>
 )
 
+@OptIn(InternalSerializationApi::class)
+@Serializable
+data class WorkingChoiceHoursRequest(
+    val employeeId: Int,
+    val scheduleType: String,
+    val dayWork: String,
+    val dayRest: String,
+    val scheduleSubType: String,
+    val workTimeSlots: List<WorkTimeSlotRequest>
+)
+
+@OptIn(InternalSerializationApi::class)
+@Serializable
+data class WorkingChoiceHoursResponse(
+    val scheduleType: String,
+    val dayWork: String,
+    val dayRest: String,
+    val scheduleSubType: String,
+    val workTimeSlots: List<WorkTimeSlotRequest>
+)
+
+
+@OptIn(InternalSerializationApi::class)
+@Serializable
+data class WorkingChoiceHoursData(
+    val scheduleType: String,
+    val dayWork: String,
+    val dayRest: String,
+    val scheduleSubType: String,
+    val workTime: WorkTime,
+    val period: WorkPeriod,
+    val breaks: List<BreakTime>
+)
+
 

@@ -16,35 +16,36 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.booking.R
-import com.example.booking.viewmodel.EmployeeViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChartEmployeeSetUpScreen(
+fun ChartChoiceSetUpScreen(
     userId: Int?,
     enterpriseId: Int?,
     employeeId: Int?,
-    onBackClick: (userId: Int?, enterpriseId: Int) -> Unit,
-    onNextClick: (userId: Int?, enterpriseId: Int, employeeId: Int, level: String) -> Unit,
-    onNextWeekClick: (userId: Int?, enterpriseId: Int, employeeId: Int, level: String) -> Unit,
-    onNextChartClick: (userId: Int?, enterpriseId: Int, employeeId: Int, level: String) -> Unit
+    level: String?,
+    dayWork: String?,
+    dayRest: String?,
+    onBackClick: (userId: Int?, enterpriseId: Int?, employeeId: Int?, level: String?) -> Unit,
+    onSaveClick: (userId: Int?, enterpriseId: Int?, employeeId: Int?, level: String?, dayWork:  String?, dayRest:  String?, subType:  String?) -> Unit,
 ) {
-    val chartLevels = listOf(
-        ChartLevel("Будни"),
-        ChartLevel("Все дни"),
-        ChartLevel("Четные"),
-        ChartLevel("Нечетные"),
-        ChartLevel("2 на 2"),
-        ChartLevel("По дням недели"),
-        ChartLevel("Настроить свою схему"),
-    )
+
 
     val customFontFamily = FontFamily(
         Font(R.font.roboto_regular),
         Font(R.font.roboto_bold, FontWeight.Bold)
     )
+
+    val subTypes = listOf(
+        subTypes("Четные"),
+        subTypes("Нечетные"),
+        subTypes("Без деления")
+    )
+
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -58,8 +59,8 @@ fun ChartEmployeeSetUpScreen(
             ) {
                 IconButton(
                     onClick = {
-                        if (userId != null && enterpriseId != null) {
-                            onBackClick(userId, enterpriseId)
+                        if (userId != null && enterpriseId != null && employeeId != null && level != null) {
+                            onBackClick(userId, enterpriseId, employeeId, level)
                         }
                     },
                     modifier = Modifier
@@ -75,7 +76,7 @@ fun ChartEmployeeSetUpScreen(
                 }
 
                 Text(
-                    text = "Цикличный график",
+                    text = "Рабочий график",
                     style = TextStyle(
                         fontSize = 22.sp,
                         fontFamily = customFontFamily,
@@ -96,26 +97,19 @@ fun ChartEmployeeSetUpScreen(
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .padding(top = 16.dp, bottom = 24.dp)
+                        .padding(horizontal = 24.dp)
+                        .padding(top = 32.dp)
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    chartLevels.forEach { level ->
+                    subTypes.forEach { week->
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .height(52.dp)
                                 .clickable {
-                                    if (userId != null && enterpriseId != null && employeeId != null
-                                        && level.title != "По дням недели"
-                                        && level.title != "Настроить свою схему") {
-                                        onNextClick(userId, enterpriseId, employeeId, level.title)
-                                    } else if (userId != null && enterpriseId != null && employeeId != null
-                                        && level.title == "По дням недели"){
-                                        onNextWeekClick(userId, enterpriseId, employeeId, level.title)
-                                    }else if (userId != null && enterpriseId != null && employeeId != null
-                                        && level.title == "Настроить свою схему"){
-                                        onNextChartClick(userId, enterpriseId, employeeId, level.title)
+                                    if (userId != null && enterpriseId != null && employeeId != null && level != null && dayWork != null && dayRest != null) {
+                                        onSaveClick(userId, enterpriseId, employeeId, level, dayWork, dayRest,  week.title)
                                     }
                                 },
                             shape = RoundedCornerShape(12.dp),
@@ -125,21 +119,52 @@ fun ChartEmployeeSetUpScreen(
                             )
                         ) {
                             Column(
-                                modifier = Modifier.padding(16.dp)
+                                modifier = Modifier.padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Text(
-                                    text = level.title,
-                                    style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Bold
-                                    )
+                                    text = week.title,
+                                    fontFamily = customFontFamily,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Center
                                 )
                             }
                         }
+
                     }
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    Button(
+                        onClick = {
+                            if (userId != null && enterpriseId != null && employeeId != null && level != null) {
+
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Black,
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text(
+                            "Далее",
+                            fontFamily = customFontFamily,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
         }
     }
 }
 
-data class ChartLevel(val title: String)
+

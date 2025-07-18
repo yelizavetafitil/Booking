@@ -167,4 +167,89 @@ class NetworkWorkingHours {
             }
         }
     }
+
+    suspend fun getWorkingChoiceHours(
+        employeeId: Int,
+        scheduleType: String? = null,
+        dayWork: String? = null,
+        dayRest: String? = null,
+        scheduleSubType: String? = null
+    ): List<WorkingChoiceHoursResponse> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val url = buildString {
+                    append("http://10.0.2.2:8080/employee/$employeeId/choice-schedule")
+                    val params = mutableListOf<String>()
+
+                    scheduleType?.let {
+                        params.add("type=$it")
+                    }
+
+                    dayWork?.let {
+                            params.add("dayWork=$it")
+                    }
+
+                    dayRest?.let {
+                        params.add("dayRest=$it")
+                    }
+
+                    scheduleSubType?.let {
+                        params.add("subType=$it")
+                    }
+
+                    if (params.isNotEmpty()) {
+                        append("?")
+                        append(params.joinToString("&"))
+                    }
+                }
+
+                client.get(url).body()
+            } catch (e: Exception) {
+                emptyList()
+            }
+        }
+    }
+
+    suspend fun saveWorkingChoiceHours(
+        employeeId: Int,
+        scheduleType: String,
+        dayWork: String,
+        dayRest: String,
+        scheduleSubType: String,
+        workTime: WorkTime,
+        workPeriod: WorkPeriod,
+        breaks: List<BreakTime>
+    ): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val request = WorkingChoiceHoursRequest(
+                    employeeId = employeeId,
+                    scheduleType = scheduleType,
+                    dayWork = dayWork,
+                    dayRest = dayRest,
+                    scheduleSubType = scheduleSubType,
+                    workTimeSlots = listOf(
+                        WorkTimeSlotRequest(
+                            startTime = workTime.start,
+                            endTime = workTime.end,
+                            validFrom = workPeriod.start,
+                            validTo = workPeriod.end,
+                            breaks = breaks.map {
+                                BreakRequest(it.start, it.end)
+                            }
+                        )
+                    )
+                )
+
+                val response = client.post("http://10.0.2.2:8080/employee/choice-schedule") {
+                    contentType(ContentType.Application.Json)
+                    setBody(request)
+                }
+
+                response.status == HttpStatusCode.OK
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
 }
