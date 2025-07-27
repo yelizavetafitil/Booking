@@ -1,6 +1,8 @@
     package com.example.booking.navigation
 
+    import android.os.Build
     import android.util.Log
+    import androidx.annotation.RequiresApi
     import androidx.compose.runtime.Composable
     import androidx.compose.runtime.LaunchedEffect
     import androidx.compose.runtime.getValue
@@ -36,6 +38,7 @@
     import com.example.booking.view.ProfileEnterpriseSelectionScreen
     import com.example.booking.view.ProfileScreen
     import com.example.booking.view.RegistrationScreen
+    import com.example.booking.view.ScheduleScreen
     import com.example.booking.view.ServiceAddEmployeeScreen
     import com.example.booking.view.ServiceAddScreen
     import com.example.booking.view.ServiceEditEmployeeScreen
@@ -135,8 +138,12 @@
         object ChartChoiceHours : Screen("ChartChoiceHours/{userId}&{enterpriseId}&{employeeId}&{level}&{dayWork}&{dayRest}&{subType}") {
             fun createRoute(userId: Int, enterpriseId: Int, employeeId: Int, level: String, dayWork: String, dayRest: String, subType: String) = "ChartChoiceHours/$userId&$enterpriseId&$employeeId&$level&$dayWork&$dayRest&$subType"
         }
+        object Schedule : Screen("Schedule/{userId}&{enterpriseId}") {
+            fun createRoute(userId: Int, enterpriseId: Int) = "Schedule/$userId&$enterpriseId"
+        }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Composable
     fun AppNavigation() {
         val navController = rememberNavController()
@@ -572,7 +579,7 @@
                     onChartClick = {userId, enterpriseId ->
                         userId?.let {
                             enterpriseId?.let {
-                                navController.navigate(Screen.ChartEmployeeSelect.createRoute(userId, enterpriseId))
+                                navController.navigate(Screen.Schedule.createRoute(userId, enterpriseId))
                             }
                         }
                     },
@@ -853,7 +860,7 @@
                     onBackClick = {userId, enterpriseId ->
                         userId?.let {
                             enterpriseId?.let {
-                                navController.navigate(Screen.Employee.createRoute(userId, enterpriseId))
+                                navController.navigate(Screen.Schedule.createRoute(userId, enterpriseId))
                             }
                         }
                     }
@@ -1229,6 +1236,34 @@
                                         }
                                     }
                                 }
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.Schedule.route,
+                arguments = listOf(navArgument("userId") { type = NavType.IntType },
+                    navArgument("enterpriseId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getInt("userId")
+                val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId")
+                ScheduleScreen(
+                    userId = userId,
+                    enterpriseId = enterpriseId,
+                    onConfigureClick = {userId, enterpriseId ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                navController.navigate(Screen.ChartEmployeeSelect.createRoute(userId, enterpriseId))
+                            }
+                        }
+                    },
+                    onBackClick = {userId, enterpriseId ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                navController.navigate(Screen.Employee.createRoute(userId, enterpriseId))
                             }
                         }
                     }

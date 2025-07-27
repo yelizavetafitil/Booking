@@ -93,16 +93,32 @@ fun WorkingWeeksHoursSetUpScreenFinish(
     viewModel.error?.let { errorMessage ->
         AlertDialog(
             onDismissRequest = { viewModel.clearError() },
-            title = { Text("Ошибка") },
-            text = { Text(errorMessage) },
+            title = {
+                Text(
+                    text = "Ошибка",
+                    color = Color.Black
+                )
+            },
+            text = {
+                Text(
+                    text = errorMessage,
+                    color = Color.Black
+                )
+            },
             confirmButton = {
-                Button(onClick = { viewModel.clearError() },
+                Button(
+                    onClick = { viewModel.clearError() },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Black
-                    )) {
-                    Text("OK", color = Color.White)
+                        containerColor = Color.Black,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text("OK")
                 }
-            }
+            },
+            containerColor = Color.White,
+            titleContentColor = Color.Black,
+            textContentColor = Color.Black
         )
     }
 

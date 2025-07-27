@@ -119,4 +119,26 @@ data class WorkingChoiceHoursData(
     val breaks: List<BreakTime>
 )
 
+@OptIn(InternalSerializationApi::class)
+@Serializable
+data class EmployeeScheduleResponse(
+    val employeeId: Int,
+    val fullName: String,
+    val timeSlots: List<TimeSlotResponse>
+)
+
+@OptIn(InternalSerializationApi::class)
+@Serializable
+data class TimeSlotResponse(
+    val startTime: String,
+    val endTime: String,
+    val breaks: List<BreakResponse>
+)
+
+@OptIn(InternalSerializationApi::class)
+@Serializable
+data class BreakResponse(
+    val startTime: String,
+    val endTime: String
+)
 
