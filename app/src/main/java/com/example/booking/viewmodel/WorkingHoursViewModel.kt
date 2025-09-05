@@ -181,6 +181,81 @@ class WorkingHoursViewModel(
         }
     }
 
+    fun saveWorkingHoursExept(
+        employeeId: Int,
+        scheduleType: String,
+        workTime: WorkTime,
+        workPeriod: WorkPeriodExept,
+        breaks: List<BreakTime>,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            isLoading = true
+            error = null
+
+            try {
+                val response = networkWorkingHours.saveWorkingHoursExeptData(
+                    employeeId = employeeId,
+                    scheduleType = scheduleType,
+                    workTime = workTime,
+                    workPeriod = workPeriod,
+                    breaks = breaks
+                )
+
+                if (response) {
+                    currentScheduleType = scheduleType
+                    onSuccess()
+                } else {
+                    error ="Не удалось сохранить график, проверьте формат," +
+                            " перерыв должен быть в пределах рабочего времени" +
+                            ", у сотрдника не должно быть графиков на указанный период"
+                }
+            } catch (e: IOException) {
+                error = "Ошибка сети: проверьте подключение"
+            } catch (e: Exception) {
+                error = "Ошибка: ${e.localizedMessage ?: "неизвестная ошибка"}"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    fun  restWorkingHoursExept(
+        employeeId: Int,
+        scheduleType: String,
+        data: String,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            isLoading = true
+            error = null
+
+            try {
+                val response = networkWorkingHours.restWorkingHoursExept(
+                    employeeId = employeeId,
+                    scheduleType = scheduleType,
+                    data = data
+                )
+
+                if (response) {
+                    currentScheduleType = scheduleType
+                    onSuccess()
+                } else {
+                    error ="Не удалось сохранить график, проверьте формат," +
+                            " перерыв должен быть в пределах рабочего времени" +
+                            ", у сотрдника не должно быть графиков на указанный период"
+                }
+            } catch (e: IOException) {
+                error = "Ошибка сети: проверьте подключение"
+            } catch (e: Exception) {
+                error = "Ошибка: ${e.localizedMessage ?: "неизвестная ошибка"}"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+
     fun saveWorkingWeeksHours(
         employeeId: Int,
         scheduleType: String,

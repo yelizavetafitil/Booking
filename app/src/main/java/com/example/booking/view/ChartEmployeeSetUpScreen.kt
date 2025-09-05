@@ -29,7 +29,8 @@ fun ChartEmployeeSetUpScreen(
     onBackClick: (userId: Int?, enterpriseId: Int) -> Unit,
     onNextClick: (userId: Int?, enterpriseId: Int, employeeId: Int, level: String) -> Unit,
     onNextWeekClick: (userId: Int?, enterpriseId: Int, employeeId: Int, level: String) -> Unit,
-    onNextChartClick: (userId: Int?, enterpriseId: Int, employeeId: Int, level: String) -> Unit
+    onNextChartClick: (userId: Int?, enterpriseId: Int, employeeId: Int, level: String) -> Unit,
+    onNextChartExeptClick: (userId: Int?, enterpriseId: Int, employeeId: Int, level: String) -> Unit
 ) {
     val chartLevels = listOf(
         ChartLevel("Будни"),
@@ -39,6 +40,7 @@ fun ChartEmployeeSetUpScreen(
         ChartLevel("2 на 2"),
         ChartLevel("По дням недели"),
         ChartLevel("Настроить свою схему"),
+        ChartLevel("День-исключение")
     )
 
     val customFontFamily = FontFamily(
@@ -108,7 +110,8 @@ fun ChartEmployeeSetUpScreen(
                                 .clickable {
                                     if (userId != null && enterpriseId != null && employeeId != null
                                         && level.title != "По дням недели"
-                                        && level.title != "Настроить свою схему") {
+                                        && level.title != "Настроить свою схему"
+                                        && level.title != "День-исключение") {
                                         onNextClick(userId, enterpriseId, employeeId, level.title)
                                     } else if (userId != null && enterpriseId != null && employeeId != null
                                         && level.title == "По дням недели"){
@@ -116,6 +119,9 @@ fun ChartEmployeeSetUpScreen(
                                     }else if (userId != null && enterpriseId != null && employeeId != null
                                         && level.title == "Настроить свою схему"){
                                         onNextChartClick(userId, enterpriseId, employeeId, level.title)
+                                    }else if (userId != null && enterpriseId != null && employeeId != null
+                                        && level.title == "День-исключение"){
+                                        onNextChartExeptClick(userId, enterpriseId, employeeId, level.title)
                                     }
                                 },
                             shape = RoundedCornerShape(12.dp),

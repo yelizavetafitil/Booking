@@ -500,18 +500,19 @@ fun TimeSlotItem(
     }
 }
 
+
 @RequiresApi(Build.VERSION_CODES.O)
-private fun generateDatesAround(centerDate: LocalDate, daysAround: Int): List<LocalDate> {
+fun generateDatesAround(centerDate: LocalDate, daysAround: Int): List<LocalDate> {
     return (-daysAround..daysAround).map { centerDate.plusDays(it.toLong()) }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-private fun generateDatesAfter(lastDate: LocalDate, count: Int): List<LocalDate> {
+fun generateDatesAfter(lastDate: LocalDate, count: Int): List<LocalDate> {
     return (1..count).map { lastDate.plusDays(it.toLong()) }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-private fun generateDatesBefore(firstDate: LocalDate, count: Int): List<LocalDate> {
+fun generateDatesBefore(firstDate: LocalDate, count: Int): List<LocalDate> {
     return (1..count).map { i -> firstDate.minusDays(i.toLong()) }.reversed()
 }
 

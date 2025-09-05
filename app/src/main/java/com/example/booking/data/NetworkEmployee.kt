@@ -81,6 +81,31 @@ class NetworkEmployee {
         }
     }
 
+    suspend fun getEnterpriseEmployeeService(enterpriseId: Int, serviceId: Int? = null): List<Employee> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val url = buildString {
+                    append("http://10.0.2.2:8080/enterpriseEmployeeService/$enterpriseId")
+                    if (serviceId != null) {
+                        append("?serviceId=$serviceId")
+                    }
+                }
+
+                val response = client.get(url) {
+                    accept(ContentType.Application.Json)
+                }
+
+                when (response.status) {
+                    HttpStatusCode.OK -> response.body()
+                    else -> throw Exception("Ошибка сервера: ${response.status}")
+                }
+            } catch (e: Exception) {
+                println("Ошибка получения: ${e.message}")
+                throw e
+            }
+        }
+    }
+
     suspend fun loadEmployee(employeeId: Int): EmployeeEdit {
         return withContext(Dispatchers.IO) {
             try {

@@ -1,5 +1,5 @@
 package com.example.booking.models
-import android.annotation.SuppressLint
+
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.Serializable
 

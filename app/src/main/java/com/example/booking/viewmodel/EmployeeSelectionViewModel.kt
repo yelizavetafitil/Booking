@@ -28,4 +28,14 @@ class EmployeeSelectionViewModel : ViewModel() {
         }
     }
 
+    fun loadEmployeeService(enterpriseId: Int, serviceId: Int,) {
+        viewModelScope.launch {
+            try {
+                _employee.value = networkEmployee.getEnterpriseEmployeeService(enterpriseId, serviceId)
+            } catch (e: Exception) {
+                _employee.value = emptyList()
+            }
+        }
+    }
+
 }

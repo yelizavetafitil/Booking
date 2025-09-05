@@ -15,6 +15,10 @@ data class WorkPeriod(val start: String, val end: String)
 
 @OptIn(InternalSerializationApi::class)
 @Serializable
+data class WorkPeriodExept(val date: String)
+
+@OptIn(InternalSerializationApi::class)
+@Serializable
 data class BreakTime(val start: String, val end: String)
 
 @OptIn(InternalSerializationApi::class)
@@ -23,6 +27,15 @@ data class WorkingHoursData(
     val scheduleType: String,
     val workTime: WorkTime,
     val period: WorkPeriod,
+    val breaks: List<BreakTime>
+)
+
+@OptIn(InternalSerializationApi::class)
+@Serializable
+data class WorkingHoursExeptData(
+    val scheduleType: String,
+    val workTime: WorkTime,
+    val period: WorkPeriodExept,
     val breaks: List<BreakTime>
 )
 
@@ -57,6 +70,32 @@ data class WorkingHoursRequest(
     val employeeId: Int,
     val scheduleType: String,
     val workTimeSlots: List<WorkTimeSlotRequest>
+)
+
+
+@OptIn(InternalSerializationApi::class)
+@Serializable
+data class WorkTimeSlotExeptRequest(
+    val startTime: String,
+    val endTime: String,
+    val data: String,
+    val breaks: List<BreakRequest>
+)
+
+@OptIn(InternalSerializationApi::class)
+@Serializable
+data class WorkingHoursExeptRequest(
+    val employeeId: Int,
+    val scheduleType: String,
+    val workTimeSlots: List<WorkTimeSlotExeptRequest>
+)
+
+@OptIn(InternalSerializationApi::class)
+@Serializable
+data class WorkingHoursRestExeptRequest(
+    val employeeId: Int,
+    val scheduleType: String,
+    val data: String
 )
 
 @OptIn(InternalSerializationApi::class)

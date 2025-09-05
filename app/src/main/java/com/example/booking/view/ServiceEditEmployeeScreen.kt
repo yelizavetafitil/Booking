@@ -39,7 +39,7 @@ fun ServiceEditEmployeeScreen(
     onSuccess: (userId: Int?, enterpriseId: Int) -> Unit,
     onBackClick: (userId: Int?, enterpriseId: Int) -> Unit
 ) {
-    // Проверка обязательных параметров
+    
     if (userId == null || enterpriseId == null || serviceId == null) {
         Box(
             modifier = Modifier
@@ -62,12 +62,12 @@ fun ServiceEditEmployeeScreen(
         Font(R.font.roboto_bold, FontWeight.Bold)
     )
 
-    // Состояние выбранных сотрудников
+    
     var selectedEmployees by rememberSaveable { mutableStateOf<Set<Int>>(emptySet()) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    // Загрузка данных
+    
     LaunchedEffect(enterpriseId, serviceId) {
         try {
             isLoading = true
@@ -81,14 +81,14 @@ fun ServiceEditEmployeeScreen(
         }
     }
 
-    // Обновление выбранных сотрудников
+    
     LaunchedEffect(employeeViewModel.currentEmployees) {
         selectedEmployees = employeeViewModel.currentEmployees
     }
 
     val employees by viewModel.employee.collectAsState()
 
-    // Диалог ошибки
+    
     errorMessage?.let { message ->
         AlertDialog(
             onDismissRequest = { errorMessage = null },
@@ -107,13 +107,13 @@ fun ServiceEditEmployeeScreen(
         )
     }
 
-    // Основной интерфейс
+    
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color.Black
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // Шапка экрана
+            
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -243,10 +243,9 @@ fun ServiceEditEmployeeScreen(
                                     .height(52.dp),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (selectedEmployees.isNotEmpty()) Color.Black else Color.Gray,
+                                    containerColor =  Color.Black,
                                     contentColor = Color.White
-                                ),
-                                enabled = selectedEmployees.isNotEmpty()
+                                )
                             ) {
                                 Text(
                                     text = if (selectedEmployees.isNotEmpty()) {

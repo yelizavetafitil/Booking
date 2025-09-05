@@ -1,5 +1,7 @@
     package com.example.booking.navigation
 
+    import java.time.LocalDate
+    import java.time.format.DateTimeFormatter
     import android.os.Build
     import android.util.Log
     import androidx.annotation.RequiresApi
@@ -7,7 +9,6 @@
     import androidx.compose.runtime.LaunchedEffect
     import androidx.compose.runtime.getValue
     import androidx.compose.runtime.mutableStateOf
-    import androidx.compose.runtime.remember
     import androidx.compose.runtime.saveable.rememberSaveable
     import androidx.compose.runtime.setValue
     import androidx.lifecycle.viewmodel.compose.viewModel
@@ -16,38 +17,7 @@
     import androidx.navigation.compose.composable
     import androidx.navigation.compose.rememberNavController
     import androidx.navigation.navArgument
-    import com.example.booking.view.AccessEditSelectionScreen
-    import com.example.booking.view.AccessSelectionScreen
-    import com.example.booking.view.ChartChoiceHoursScreen
-    import com.example.booking.view.ChartChoiceScreen
-    import com.example.booking.view.ChartChoiceSetUpScreen
-    import com.example.booking.view.ChartEmployeeSelectScreen
-    import com.example.booking.view.ChartEmployeeSetUpScreen
-    import com.example.booking.view.EmployeeAddScreen
-    import com.example.booking.view.EmployeeEditScreen
-    import com.example.booking.view.EmployeeScreen
-    import com.example.booking.view.EmployeeSelectScreen
-    import com.example.booking.view.EnterpriseAddScreen
-    import com.example.booking.view.EnterpriseEditScreen
-    import com.example.booking.view.EnterpriseRegistrationScreen
-    import com.example.booking.view.EnterpriseSelectionScreen
-    import com.example.booking.view.EntryScreen
-    import com.example.booking.view.LoginRegistrationScreen
-    import com.example.booking.view.ManagementScreen
-    import com.example.booking.view.ProfileEditScreen
-    import com.example.booking.view.ProfileEnterpriseSelectionScreen
-    import com.example.booking.view.ProfileScreen
-    import com.example.booking.view.RegistrationScreen
-    import com.example.booking.view.ScheduleScreen
-    import com.example.booking.view.ServiceAddEmployeeScreen
-    import com.example.booking.view.ServiceAddScreen
-    import com.example.booking.view.ServiceEditEmployeeScreen
-    import com.example.booking.view.ServiceEditScreen
-    import com.example.booking.view.ServiceScreen
-    import com.example.booking.view.WorkingHoursScreen
-    import com.example.booking.view.WorkingWeeksHoursScreen
-    import com.example.booking.view.WorkingWeeksHoursSetUpScreen
-    import com.example.booking.view.WorkingWeeksHoursSetUpScreenFinish
+    import com.example.booking.view.*
     import com.example.booking.viewmodel.EmployeeViewModel
 
     sealed class Screen(val route: String) {
@@ -74,6 +44,15 @@
         }
         object EnterpriseEdit : Screen("editEnterprise/{userId}&{enterpriseId}") {
             fun createRoute(userId: Int, enterpriseId: Int) = "editEnterprise/$userId&$enterpriseId"
+        }
+        object RecordServiceChoice : Screen("RecordServiceChoice/{userId}&{enterpriseId}") {
+            fun createRoute(userId: Int, enterpriseId: Int) = "RecordServiceChoice/$userId&$enterpriseId"
+        }
+        object RecordEmployeeChoice : Screen("RecordEmployeeChoice/{userId}&{enterpriseId}&{serviceId}") {
+            fun createRoute(userId: Int, enterpriseId: Int, serviceId: Int) = "RecordEmployeeChoice/$userId&$enterpriseId&$serviceId"
+        }
+        object TimeSelectionScreen : Screen("TimeSelectionScreen/{userId}&{enterpriseId}&{serviceId}&{employeeId}") {
+            fun createRoute(userId: Int, enterpriseId: Int, serviceId: Int, employeeId: Int) = "TimeSelectionScreen/$userId&$enterpriseId&$serviceId&$employeeId"
         }
         object Management : Screen("management/{userId}&{enterpriseId}") {
             fun createRoute(userId: Int, enterpriseId: Int) = "management/$userId&$enterpriseId"
@@ -120,6 +99,9 @@
         object WorkingHours : Screen("WorkingHours/{userId}&{enterpriseId}&{employeeId}&{level}") {
             fun createRoute(userId: Int, enterpriseId: Int, employeeId: Int, level: String) = "WorkingHours/$userId&$enterpriseId&$employeeId&$level"
         }
+        object ChartExept : Screen("ChartExept/{userId}&{enterpriseId}&{employeeId}&{level}") {
+            fun createRoute(userId: Int, enterpriseId: Int, employeeId: Int, level: String) = "ChartExept/$userId&$enterpriseId&$employeeId&$level"
+        }
         object WorkingWeeksHours : Screen("WorkingWeeksHours/{userId}&{enterpriseId}&{employeeId}&{level}") {
             fun createRoute(userId: Int, enterpriseId: Int, employeeId: Int, level: String) = "WorkingWeeksHours/$userId&$enterpriseId&$employeeId&$level"
         }
@@ -140,6 +122,9 @@
         }
         object Schedule : Screen("Schedule/{userId}&{enterpriseId}") {
             fun createRoute(userId: Int, enterpriseId: Int) = "Schedule/$userId&$enterpriseId"
+        }
+        object RecordScreen : Screen("RecordScreen/{userId}&{enterpriseId}&{serviceId}&{employeeId}&{selectedTime}&{selectedDate}") {
+            fun createRoute(userId: Int, enterpriseId: Int, serviceId: Int, employeeId: Int, selectedTime: String, selectedDate: LocalDate) = "RecordScreen/$userId&$enterpriseId&$serviceId&$employeeId&$selectedTime&$selectedDate"
         }
     }
 
@@ -296,7 +281,11 @@
                         }
                     },
                     onCalendarClick = {userId, enterpriseId ->
-
+                        userId?.let {
+                            enterpriseId?.let {
+                                navController.navigate(Screen.RecordServiceChoice.createRoute(userId, enterpriseId))
+                            }
+                        }
                     }
                 )
             }
@@ -908,6 +897,15 @@
                             }
                         }
                     },
+                    onNextChartExeptClick = {userId, enterpriseId, employeeId, level ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                employeeId?.let {
+                                    navController.navigate(Screen.ChartExept.createRoute(userId, enterpriseId, employeeId, level ))
+                                }
+                            }
+                        }
+                    },
                     onBackClick = {userId, enterpriseId ->
                         userId?.let {
                             enterpriseId?.let {
@@ -939,6 +937,42 @@
                         userId?.let {
                             enterpriseId?.let {
                                 navController.navigate(Screen.ChartEmployeeSelect.createRoute(userId, enterpriseId))
+                            }
+                        }
+                    },
+                    onBackClick = {userId, enterpriseId, employeeId  ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                employeeId?.let {
+                                    navController.navigate(Screen.ChartEmployeeSetUp.createRoute(userId, enterpriseId, employeeId))
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.ChartExept.route,
+                arguments = listOf(navArgument("userId") { type = NavType.IntType },
+                    navArgument("enterpriseId") { type = NavType.IntType },
+                    navArgument("employeeId") { type = NavType.IntType },
+                    navArgument("level") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getInt("userId")
+                val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId")
+                val employeeId = backStackEntry.arguments?.getInt("employeeId")
+                val level = backStackEntry.arguments?.getString("level")?: ""
+                WorkingHoursExeptScreen(
+                    userId = userId,
+                    enterpriseId = enterpriseId,
+                    employeeId = employeeId,
+                    level = level,
+                    onSaveClick = {userId, enterpriseId ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                navController.navigate(Screen.Schedule.createRoute(userId, enterpriseId))
                             }
                         }
                     },
@@ -1265,6 +1299,168 @@
                             enterpriseId?.let {
                                 navController.navigate(Screen.Employee.createRoute(userId, enterpriseId))
                             }
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.RecordServiceChoice.route,
+                arguments = listOf(navArgument("userId") { type = NavType.IntType },
+                    navArgument("enterpriseId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getInt("userId")
+                val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId")
+                RecordServiceChoice(
+                    userId = userId,
+                    enterpriseId = enterpriseId,
+                    onEditService = { userId, enterpriseId, serviceId ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                serviceId?.let {
+                                    navController.navigate(
+                                        Screen.RecordEmployeeChoice.createRoute(
+                                            userId,
+                                            enterpriseId,
+                                            serviceId
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    },
+                    onBackClick = { userId, enterpriseId ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                navController.navigate(Screen.Profile.createRoute(userId, enterpriseId))
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.RecordEmployeeChoice.route,
+                arguments = listOf(navArgument("userId") { type = NavType.IntType },
+                    navArgument("enterpriseId") { type = NavType.IntType },
+                    navArgument("serviceId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getInt("userId")
+                val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId")
+                val serviceId = backStackEntry.arguments?.getInt("serviceId")
+                RecordEmployeeChoice(
+                    userId = userId,
+                    enterpriseId = enterpriseId,
+                    serviceId = serviceId,
+                    onEditEmployee = { userId, enterpriseId, serviceId, employeeId ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                serviceId?.let {
+                                    employeeId?.let {
+                                        navController.navigate(Screen.TimeSelectionScreen.createRoute(userId, enterpriseId, serviceId, employeeId))
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    onBackClick = { userId, enterpriseId ->
+                        userId?.let {
+                            enterpriseId?.let {
+                                navController.navigate(Screen.RecordServiceChoice.createRoute(userId, enterpriseId))
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.TimeSelectionScreen.route,
+                arguments = listOf(navArgument("userId") { type = NavType.IntType },
+                    navArgument("enterpriseId") { type = NavType.IntType },
+                    navArgument("serviceId") { type = NavType.IntType },
+                    navArgument("employeeId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getInt("userId")
+                val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId")
+                val serviceId = backStackEntry.arguments?.getInt("serviceId")
+                val employeeId = backStackEntry.arguments?.getInt("employeeId")
+                TimeSelectionScreen(
+                    userId = userId,
+                    enterpriseId = enterpriseId,
+                    serviceId = serviceId,
+                    employeeId = employeeId,
+                    onNext = { userId, enterpriseId, serviceId, employeeId, selectedTime, selectedDay ->
+                        userId?.let {
+                            navController.navigate( Screen.RecordScreen.createRoute(
+                                                userId,
+                                                enterpriseId,
+                                                serviceId,
+                                                employeeId,
+                                                selectedTime,
+                                                selectedDay))
+                        }
+                    },
+                    onBackClick = { userId, enterpriseId, serviceId ->
+                        userId?.let {
+                                    navController.navigate(
+                                        Screen.RecordEmployeeChoice.createRoute(
+                                            userId,
+                                            enterpriseId,
+                                            serviceId
+                                        )
+                                    )
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.RecordScreen.route,
+                arguments = listOf(
+                    navArgument("userId") { type = NavType.IntType },
+                    navArgument("enterpriseId") { type = NavType.IntType },
+                    navArgument("serviceId") { type = NavType.IntType },
+                    navArgument("employeeId") { type = NavType.IntType },
+                    navArgument("selectedTime") { type = NavType.StringType },
+                    navArgument("selectedDate") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getInt("userId")
+                val enterpriseId = backStackEntry.arguments?.getInt("enterpriseId") ?: 0
+                val serviceId = backStackEntry.arguments?.getInt("serviceId") ?: 0
+                val employeeId = backStackEntry.arguments?.getInt("employeeId") ?: 0
+                val selectedTime = backStackEntry.arguments?.getString("selectedTime") ?: ""
+                val selectedDateString = backStackEntry.arguments?.getString("selectedDate") ?: ""
+
+                val selectedDate = try {
+                    LocalDate.parse(selectedDateString)
+                } catch (e: Exception) {
+                    LocalDate.now()
+                }
+
+                RecordScreen(
+                    userId = userId,
+                    enterpriseId = enterpriseId,
+                    serviceId = serviceId,
+                    employeeId = employeeId,
+                    selectedTime = selectedTime,
+                    selectedDate = selectedDate,
+                    onNext = { userId, enterpriseId ->
+
+                    },
+                    onBackClick = { userId, enterpriseId, serviceId, employeeId ->
+                        userId?.let {
+                            navController.navigate(
+                                Screen.TimeSelectionScreen.createRoute(
+                                    userId,
+                                    enterpriseId,
+                                    serviceId,
+                                    employeeId
+                                )
+                            )
                         }
                     }
                 )

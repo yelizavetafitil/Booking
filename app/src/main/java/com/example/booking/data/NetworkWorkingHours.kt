@@ -1,4 +1,3 @@
-// Файл: NetworkWorkingHours.kt
 package com.example.booking.data
 
 import com.example.booking.models.*
@@ -72,6 +71,66 @@ class NetworkWorkingHours {
         }
     }
 
+    suspend fun saveWorkingHoursExeptData(
+        employeeId: Int,
+        scheduleType: String,
+        workTime: WorkTime,
+        workPeriod: WorkPeriodExept,
+        breaks: List<BreakTime>
+    ): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val request = WorkingHoursExeptRequest(
+                    employeeId = employeeId,
+                    scheduleType = scheduleType,
+                    workTimeSlots = listOf(
+                        WorkTimeSlotExeptRequest(
+                            startTime = workTime.start,
+                            endTime = workTime.end,
+                            data = workPeriod.date,
+                            breaks = breaks.map {
+                                BreakRequest(it.start, it.end)
+                            }
+                        )
+                    )
+                )
+
+                val response = client.post("http://10.0.2.2:8080/employee/schedule/exept") {
+                    contentType(ContentType.Application.Json)
+                    setBody(request)
+                }
+
+                response.status == HttpStatusCode.OK
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
+
+    suspend fun restWorkingHoursExept(
+        employeeId: Int,
+        scheduleType: String,
+        data: String
+    ): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val request = WorkingHoursRestExeptRequest(
+                    employeeId = employeeId,
+                    scheduleType = scheduleType,
+                    data = data,
+                )
+
+                val response = client.post("http://10.0.2.2:8080/employee/schedule/exept-rest") {
+                    contentType(ContentType.Application.Json)
+                    setBody(request)
+                }
+
+                response.status == HttpStatusCode.OK
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
 
     suspend fun saveWorkingWeeksHours(
         employeeId: Int,
